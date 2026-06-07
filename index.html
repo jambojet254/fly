@@ -25,20 +25,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Libraries (EmailJS, html2pdf) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Use a specific, stable version of html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
        (function(){
-          emailjs.init("V_Ve8vPtKwhGaDf_f"); // User's public key
+          emailjs.init("V_Ve8vPtKwhGaDf_f");
        })();
     </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .page-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .page-section { display: none; animation: fadeIn 0.3s ease-in-out; }
         .page-active { display: block; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse-fast { 0%, 100% { opacity: 1; transform: scale(1) translateX(-50%); } 50% { opacity: 0.8; transform: scale(1.05) translateX(-48%); } }
         
@@ -46,105 +47,119 @@
         .badge-scarcity { animation: pulse-fast 1.5s infinite; }
         
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); }
+        
+        /* Mobile optimizations for inputs */
+        @media (max-width: 640px) {
+            input[type="date"], select, input[type="text"], input[type="email"], input[type="number"], input[type="tel"] {
+                font-size: 16px; /* Prevents iOS auto-zoom */
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="text-gray-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
 
     <!-- Custom Alert Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 max-w-md transform transition-transform">
-            <h3 id="modal-title" class="text-2xl font-extrabold text-jambo-slate mb-2"></h3>
-            <p id="modal-msg" class="text-gray-600 mb-6 leading-relaxed"></p>
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-5 md:p-6 w-full max-w-md transform transition-transform">
+            <h3 id="modal-title" class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-2"></h3>
+            <p id="modal-msg" class="text-sm md:text-base text-gray-600 mb-6 leading-relaxed"></p>
             <button onclick="document.getElementById('custom-modal').classList.add('hidden')" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-bold py-3 px-4 rounded-lg transition shadow">Got it</button>
         </div>
     </div>
 
+    <!-- Toast Notification (for copy to clipboard) -->
+    <div id="toast-notification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full shadow-lg text-sm font-bold opacity-0 transition-opacity z-[110] pointer-events-none">
+        Copied to clipboard!
+    </div>
+
     <!-- Global Processing Overlay -->
-    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-90 z-[90] hidden flex flex-col items-center justify-center backdrop-blur-sm">
+    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-95 z-[90] hidden flex flex-col items-center justify-center backdrop-blur-sm">
         <div class="loader mb-4"></div>
-        <h2 id="loader-text" class="text-2xl font-extrabold text-jambo-slate">Processing...</h2>
-        <p class="text-gray-500 mt-2">Please do not close this window.</p>
+        <h2 id="loader-text" class="text-xl md:text-2xl font-extrabold text-jambo-slate text-center px-4">Processing...</h2>
+        <p class="text-gray-500 mt-2 text-sm text-center">Please do not close this window.</p>
     </div>
 
     <!-- Top Promo Bar -->
-    <div class="bg-jambo-gold text-jambo-slate text-center py-2 px-4 text-sm font-bold relative overflow-hidden">
-        <span class="animate-pulse inline-block"><i class="fa-solid fa-gift mr-2"></i> Celebrating 10 Years of Service! Economy flights from KES 2,026 this month when booking 4+ days in advance!</span>
+    <div class="bg-jambo-gold text-jambo-slate text-center py-2 px-2 md:px-4 text-xs md:text-sm font-bold relative overflow-hidden">
+        <span class="animate-pulse inline-block"><i class="fa-solid fa-gift mr-1 md:mr-2"></i> 10 Years of Service! Smart Economy flights from KES 2,026 when booking 4+ days in advance!</span>
     </div>
 
     <!-- Main Navigation -->
     <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
+            <div class="flex justify-between h-16 md:h-20 items-center">
                 <div class="flex items-center cursor-pointer" onclick="window.showPage('home')">
-                    <span class="text-4xl font-extrabold text-jambo-red tracking-tighter hover:text-jambo-darkred transition">jambojet<span class="text-lg font-normal align-top">&reg;</span></span>
+                    <span class="text-3xl md:text-4xl font-extrabold text-jambo-red tracking-tighter hover:text-jambo-darkred transition">jambojet<span class="text-sm md:text-lg font-normal align-top">&reg;</span></span>
                 </div>
                 
-                <div class="hidden md:flex space-x-8 items-center font-bold text-jambo-slate">
+                <div class="hidden md:flex space-x-6 lg:space-x-8 items-center font-bold text-jambo-slate text-sm lg:text-base">
                     <a href="#" onclick="window.showPage('home')" class="hover:text-jambo-red transition">Plan & Book</a>
                     <a href="#" onclick="window.showPage('destinations')" class="hover:text-jambo-red transition">Destinations</a>
                     <a href="#" onclick="window.showPage('offers')" class="hover:text-jambo-red transition">Offers</a>
-                    <a href="#" onclick="window.showPage('checkin')" class="hover:text-jambo-red transition"><i class="fa-solid fa-suitcase-rolling mr-1"></i> Web Check-in / My Trips</a>
+                    <a href="#" onclick="window.showPage('checkin')" class="hover:text-jambo-red transition"><i class="fa-solid fa-suitcase-rolling mr-1"></i> Check-in / My Trips</a>
                 </div>
 
                 <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-jambo-slate hover:text-jambo-red focus:outline-none">
+                    <button id="mobile-menu-btn" class="text-jambo-slate hover:text-jambo-red focus:outline-none p-2">
                         <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-lg">
-            <a href="#" onclick="window.showPage('home'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Plan & Book</a>
-            <a href="#" onclick="window.showPage('destinations'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Destinations</a>
-            <a href="#" onclick="window.showPage('offers'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Offers</a>
-            <a href="#" onclick="window.showPage('checkin'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Web Check-in / My Trips</a>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-2xl z-40">
+            <a href="#" onclick="window.showPage('home'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-slate font-bold">Plan & Book</a>
+            <a href="#" onclick="window.showPage('destinations'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-slate font-bold">Destinations</a>
+            <a href="#" onclick="window.showPage('offers'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-slate font-bold">Offers & Promos</a>
+            <a href="#" onclick="window.showPage('checkin'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-red font-bold bg-red-50"><i class="fa-solid fa-suitcase-rolling mr-2"></i> Web Check-in / My Trips</a>
         </div>
     </nav>
 
     <!-- PAGE 1: HOME / SEARCH -->
     <div id="page-home" class="page-section page-active">
         <!-- Hero Image -->
-        <div class="relative bg-slate-900 h-[500px]">
+        <div class="relative bg-slate-900 h-[400px] md:h-[500px]">
             <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Kenya" onerror="this.src='https://placehold.co/2000x500/2A3342/ffffff?text=Jambojet+Flight+Search'">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-            <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
-                <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-4 drop-shadow-lg">Now You Can Fly.</h1>
-                <p class="text-xl md:text-2xl text-gray-200 max-w-2xl font-medium drop-shadow-md">Explore Kenya and beyond with the region's premier low-cost airline.</p>
+            <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4 pt-10 md:pt-0">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 md:mb-4 drop-shadow-lg">Now You Can Fly.</h1>
+                <p class="text-lg md:text-2xl text-gray-200 max-w-2xl font-medium drop-shadow-md">Explore Kenya and beyond with the region's premier low-cost airline.</p>
             </div>
         </div>
 
         <!-- Search Widget -->
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-32 relative z-10 mb-20">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 -mt-24 md:-mt-32 relative z-10 mb-12 md:mb-20">
             <div class="glass-panel rounded-xl shadow-2xl overflow-hidden border border-gray-100">
                 <div class="flex border-b border-gray-200 bg-white">
-                    <button class="flex-1 py-4 px-4 text-center font-bold text-jambo-red border-b-4 border-jambo-red bg-red-50/50"><i class="fa-solid fa-plane-departure mr-2"></i> Book Flight</button>
-                    <button onclick="window.showPage('checkin')" class="flex-1 py-4 px-4 text-center font-bold text-gray-500 hover:bg-gray-50 hover:text-jambo-slate transition"><i class="fa-solid fa-clipboard-check mr-2"></i> Check-in / My Trips</button>
+                    <button class="flex-1 py-3 md:py-4 px-2 md:px-4 text-center text-sm md:text-base font-bold text-jambo-red border-b-4 border-jambo-red bg-red-50/50"><i class="fa-solid fa-plane-departure mr-1 md:mr-2"></i> Book Flight</button>
+                    <button onclick="window.showPage('checkin')" class="flex-1 py-3 md:py-4 px-2 md:px-4 text-center text-sm md:text-base font-bold text-gray-500 hover:bg-gray-50 hover:text-jambo-slate transition"><i class="fa-solid fa-clipboard-check mr-1 md:mr-2"></i> Check-in / Manage</button>
                 </div>
 
-                <div class="p-6 md:p-8 bg-white">
+                <div class="p-4 md:p-8 bg-white">
                     <form id="search-form" onsubmit="window.handleSearch(event)">
                         <!-- Trip Type -->
-                        <div class="flex gap-6 mb-6">
-                            <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold">
+                        <div class="flex gap-4 md:gap-6 mb-4 md:mb-6">
+                            <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold text-sm md:text-base">
                                 <input type="radio" name="tripType" value="oneway" checked onchange="window.toggleReturnDate(false)" class="w-4 h-4 text-jambo-red focus:ring-jambo-red"> One Way
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold">
+                            <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold text-sm md:text-base">
                                 <input type="radio" name="tripType" value="return" onchange="window.toggleReturnDate(true)" class="w-4 h-4 text-jambo-red focus:ring-jambo-red"> Return
                             </label>
                         </div>
 
                         <!-- Inputs -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
                             <div class="lg:col-span-1">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">From</label>
-                                <select id="origin" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate appearance-none">
+                                <select id="origin" required onchange="window.handleOriginChange(this.value)" class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base">
                                     <option value="" disabled selected>Origin</option>
                                     <option value="Nairobi (NBO)">Nairobi (NBO)</option>
                                     <option value="Mombasa (MBA)">Mombasa (MBA)</option>
@@ -158,7 +173,7 @@
                             
                             <div class="lg:col-span-1">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">To</label>
-                                <select id="destination" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate appearance-none">
+                                <select id="destination" required class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base">
                                     <option value="" disabled selected>Destination</option>
                                     <option value="Nairobi (NBO)">Nairobi (NBO)</option>
                                     <option value="Mombasa (MBA)">Mombasa (MBA)</option>
@@ -172,28 +187,28 @@
 
                             <div class="lg:col-span-1">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Depart</label>
-                                <input type="date" id="depart" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate">
+                                <input type="date" id="depart" required class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base">
                             </div>
 
                             <div class="lg:col-span-1 opacity-50 pointer-events-none transition-opacity" id="return-container">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Return</label>
-                                <input type="date" id="return" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate">
+                                <input type="date" id="return" class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base">
                             </div>
 
                             <div class="lg:col-span-1 flex items-end gap-2">
                                 <div class="w-1/2">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Adults</label>
-                                    <input type="number" id="adults" min="1" max="9" value="1" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate">
+                                    <input type="number" id="adults" min="1" max="9" value="1" class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base">
                                 </div>
                                 <div class="w-1/2">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Child</label>
-                                    <input type="number" id="children" min="0" max="9" value="0" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate">
+                                    <input type="number" id="children" min="0" max="9" value="0" class="w-full px-3 py-2 md:py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mt-6">
-                            <button type="submit" class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg rounded-lg shadow-lg transition flex justify-center items-center gap-2">
+                        <div class="mt-4 md:mt-6">
+                            <button type="submit" class="w-full py-3 md:py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-base md:text-lg rounded-lg shadow-lg transition flex justify-center items-center gap-2">
                                 <i class="fa-solid fa-magnifying-glass"></i> Find Flights
                             </button>
                         </div>
@@ -203,166 +218,188 @@
         </div>
         
         <!-- Info Cards -->
-        <div class="max-w-7xl mx-auto px-4 mb-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="max-w-7xl mx-auto px-4 mb-12 md:mb-20 grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
             <div onclick="window.showPage('offers')" class="bg-white rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer overflow-hidden border border-gray-100 group">
-                <div class="h-48 overflow-hidden relative">
+                <div class="h-40 md:h-48 overflow-hidden relative">
                     <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Promo">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
-                    <div class="absolute bottom-4 left-4"><span class="bg-jambo-gold text-jambo-slate text-xs font-extrabold px-2 py-1 rounded mb-2 inline-block">10 YEAR PROMO</span><h3 class="text-white text-xl font-extrabold">KES 2,026 Fares</h3></div>
+                    <div class="absolute bottom-4 left-4"><span class="bg-jambo-gold text-jambo-slate text-[10px] md:text-xs font-extrabold px-2 py-1 rounded mb-2 inline-block">10 YEAR PROMO</span><h3 class="text-white text-lg md:text-xl font-extrabold">KES 2,026 Fares</h3></div>
                 </div>
-                <div class="p-6"><p class="text-gray-600 text-sm">Celebrate 10 years of flying with us! Book 4 days in advance this month for exclusive KES 2,026 economy fares.</p></div>
+                <div class="p-4 md:p-6"><p class="text-gray-600 text-xs md:text-sm">Celebrate 10 years of flying with us! Book 4 days in advance this month for exclusive KES 2,026 economy fares.</p></div>
             </div>
             
             <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer overflow-hidden border border-gray-100 group">
-                <div class="h-48 bg-jambo-slate relative flex flex-col justify-center items-center text-white overflow-hidden">
-                    <i class="fa-solid fa-money-bill-transfer text-5xl mb-3 text-jambo-red"></i>
-                    <h3 class="text-xl font-extrabold relative z-10">Jaza Pole Pole</h3>
+                <div class="h-40 md:h-48 bg-jambo-slate relative flex flex-col justify-center items-center text-white overflow-hidden">
+                    <i class="fa-solid fa-money-bill-transfer text-4xl md:text-5xl mb-3 text-jambo-red"></i>
+                    <h3 class="text-lg md:text-xl font-extrabold relative z-10">Jaza Pole Pole</h3>
                 </div>
-                <div class="p-6"><p class="text-gray-600 text-sm">Secure your flight today with a minimal deposit and pay the rest in flexible installments. Travel made easy.</p></div>
+                <div class="p-4 md:p-6"><p class="text-gray-600 text-xs md:text-sm">Secure your flight today with a minimal deposit and pay the rest in flexible installments. Travel made easy.</p></div>
             </div>
             
             <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer overflow-hidden border border-gray-100 group">
-                 <div class="h-48 overflow-hidden relative">
+                 <div class="h-40 md:h-48 overflow-hidden relative">
                     <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Rewards">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
-                    <div class="absolute bottom-4 left-4"><h3 class="text-white text-xl font-extrabold">JM Rewards</h3></div>
+                    <div class="absolute bottom-4 left-4"><h3 class="text-white text-lg md:text-xl font-extrabold">JM Rewards</h3></div>
                 </div>
-                <div class="p-6"><p class="text-gray-600 text-sm">Earn points every time you fly. Redeem for free flights, extra baggage, and priority boarding.</p></div>
+                <div class="p-4 md:p-6"><p class="text-gray-600 text-xs md:text-sm">Earn points every time you fly. Redeem for free flights, extra baggage, and priority boarding.</p></div>
             </div>
         </div>
     </div>
 
     <!-- PAGE 2: FLIGHT RESULTS -->
-    <div id="page-results" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="flex items-center justify-between mb-8">
+    <div id="page-results" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8">
             <div>
-                <button onclick="window.showPage('home')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-2 flex items-center text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Modify Search</button>
-                <h2 id="results-header" class="text-3xl font-extrabold text-jambo-slate">Route</h2>
-                <p id="results-dates" class="text-gray-500 font-medium mt-1">Dates</p>
+                <button onclick="window.showPage('home')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-2 flex items-center text-xs md:text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Modify Search</button>
+                <h2 id="results-header" class="text-2xl md:text-3xl font-extrabold text-jambo-slate">Route</h2>
+                <p id="results-dates" class="text-gray-500 text-sm md:text-base font-medium mt-1">Dates</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             <div class="lg:col-span-2 space-y-8">
                 <!-- Outbound Section -->
                 <div>
-                    <h3 class="text-xl font-extrabold text-jambo-slate mb-4 pb-2 border-b-2 border-jambo-red inline-block"><i class="fa-solid fa-plane-departure mr-2"></i> Select Outbound Flight</h3>
+                    <h3 class="text-lg md:text-xl font-extrabold text-jambo-slate mb-4 pb-2 border-b-2 border-jambo-red inline-block"><i class="fa-solid fa-plane-departure mr-2"></i> Select Outbound Flight</h3>
                     <div id="outbound-flights" class="space-y-4"></div>
                 </div>
                 
                 <!-- Return Section (Hidden by default) -->
                 <div id="return-section" class="hidden">
-                    <h3 class="text-xl font-extrabold text-jambo-slate mb-4 pb-2 border-b-2 border-jambo-red inline-block"><i class="fa-solid fa-plane-arrival mr-2"></i> Select Return Flight</h3>
+                    <h3 class="text-lg md:text-xl font-extrabold text-jambo-slate mb-4 pb-2 border-b-2 border-jambo-red inline-block"><i class="fa-solid fa-plane-arrival mr-2"></i> Select Return Flight</h3>
                     <div id="return-flights" class="space-y-4"></div>
                 </div>
             </div>
 
             <!-- Sticky Summary Bar for Results -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sticky top-24">
-                    <h3 class="font-extrabold text-xl text-jambo-slate mb-4">Your Selection</h3>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-5 md:p-6 sticky top-20 md:top-24">
+                    <h3 class="font-extrabold text-lg md:text-xl text-jambo-slate mb-4">Your Selection</h3>
                     
                     <div id="outbound-summary" class="mb-4 border border-gray-100 rounded p-3 bg-gray-50">
-                        <p class="text-xs font-bold text-gray-400 uppercase mb-1">Outbound</p>
-                        <p class="text-sm font-medium text-gray-500 italic">Please select a flight</p>
+                        <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">Outbound</p>
+                        <p class="text-xs md:text-sm font-medium text-gray-500 italic">Please select a flight</p>
                     </div>
 
                     <div id="return-summary" class="hidden mb-4 border border-gray-100 rounded p-3 bg-gray-50">
-                        <p class="text-xs font-bold text-gray-400 uppercase mb-1">Return</p>
-                        <p class="text-sm font-medium text-gray-500 italic">Please select a flight</p>
+                        <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">Return</p>
+                        <p class="text-xs md:text-sm font-medium text-gray-500 italic">Please select a flight</p>
                     </div>
 
                     <div class="border-t border-gray-200 pt-4 mt-4">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex justify-between items-center mb-4 text-sm md:text-base">
                             <span class="font-bold text-gray-600">Total (<span id="pax-count">1</span> Pax)</span>
-                            <span class="font-extrabold text-2xl text-jambo-red">KES <span id="running-total">0</span></span>
+                            <span class="font-extrabold text-xl md:text-2xl text-jambo-red">KES <span id="running-total">0</span></span>
                         </div>
-                        <button id="btn-continue-checkout" disabled onclick="window.showPage('checkout')" class="w-full py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">Continue</button>
+                        <button id="btn-continue-checkout" disabled onclick="window.showPage('checkout')" class="w-full py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base">Continue</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 3: CHECKOUT (PASSENGERS & BAGGAGE) -->
-    <div id="page-checkout" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <button onclick="window.showPage('results')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-6 flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Flights</button>
+    <!-- PAGE 3: CHECKOUT (PASSENGERS, SEATS & BAGGAGE) -->
+    <div id="page-checkout" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+        <button onclick="window.showPage('results')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-4 md:mb-6 flex items-center text-sm md:text-base"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Flights</button>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             <div class="lg:col-span-2">
-                <h2 class="text-3xl font-extrabold text-jambo-slate mb-6">Passenger Details</h2>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-jambo-slate mb-4 md:mb-6">Passenger Details</h2>
                 
                 <form id="passenger-form" onsubmit="window.proceedToPayment(event)">
                     <!-- Primary Adult Block -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                        <div class="bg-gray-50 border-b p-4"><h3 class="font-bold text-gray-700"><i class="fa-solid fa-user text-jambo-red mr-2"></i> Primary Adult</h3></div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="fname" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="lname" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                        <div class="bg-gray-50 border-b p-3 md:p-4"><h3 class="font-bold text-gray-700 text-sm md:text-base"><i class="fa-solid fa-user text-jambo-red mr-2"></i> Primary Adult</h3></div>
+                        <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-1">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Title *</label>
+                                <select id="title" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white text-sm">
+                                    <option value="Mr">Mr</option><option value="Mrs">Mrs</option><option value="Miss">Miss</option><option value="Ms">Ms</option><option value="Dr">Dr</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="fname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="lname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
                             
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Nationality *</label>
-                                <select id="nationality" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white">
-                                    <option value="Kenya" selected>Kenya</option>
-                                    <option value="Uganda">Uganda</option>
-                                    <option value="Tanzania">Tanzania</option>
-                                    <option value="Rwanda">Rwanda</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="United States">United States</option>
-                                    <option value="Other">Other</option>
+                            <div class="md:col-span-1">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Nationality *</label>
+                                <select id="nationality" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white text-sm">
+                                    <option value="Kenya" selected>Kenya</option><option value="Uganda">Uganda</option><option value="Tanzania">Tanzania</option><option value="Rwanda">Rwanda</option><option value="United Kingdom">United Kingdom</option><option value="United States">United States</option><option value="Other">Other</option>
                                 </select>
                             </div>
                             
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Document Type *</label>
-                                <select id="docType" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white">
-                                    <option value="National ID" selected>National ID</option>
-                                    <option value="Passport">Passport</option>
-                                    <option value="Alien Card">Alien Card</option>
-                                    <option value="Military ID">Military ID</option>
+                            <div class="md:col-span-1">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Document Type *</label>
+                                <select id="docType" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white text-sm">
+                                    <option value="National ID" selected>National ID</option><option value="Passport">Passport</option><option value="Alien Card">Alien Card</option><option value="Military ID">Military ID</option>
                                 </select>
                             </div>
 
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Document Number *</label><input type="text" id="idpass" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none uppercase"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="dob" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Document Number *</label><input type="text" id="idpass" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none uppercase text-sm"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="dob" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
                         </div>
                     </div>
 
                     <!-- Dynamic Child Container -->
-                    <div id="child-container" class="space-y-6 mb-6"></div>
+                    <div id="child-container" class="space-y-4 md:space-y-6 mb-6"></div>
 
                     <!-- Contact Details -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                        <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
-                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-envelope text-jambo-red mr-2"></i> Contact Details</h3>
-                            <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-600">
+                        <div class="bg-gray-50 border-b p-3 md:p-4 flex justify-between items-center">
+                            <h3 class="font-bold text-gray-700 text-sm md:text-base"><i class="fa-solid fa-envelope text-jambo-red mr-2"></i> Contact Details</h3>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs md:text-sm font-bold text-gray-600">
                                 <input type="checkbox" id="same-as-pax" onchange="window.autofillContact()" class="w-4 h-4 text-jambo-red focus:ring-jambo-red border-gray-300 rounded">
-                                Same as Primary Adult
+                                Autofill
                             </label>
                         </div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Email Address (E-Ticket Destination) *</label><input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-yellow-50"></div>
-                            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Phone Number *</label><input type="tel" id="phone" placeholder="+254 700 000000" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Physical Address / City</label><input type="text" id="address" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                        <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Email Address *</label><input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-yellow-50 text-sm"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Confirm Email *</label><input type="email" id="confirm-email" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-yellow-50 text-sm"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Phone Number *</label><input type="tel" id="phone" placeholder="+254 700 000000" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">City / Address</label><input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- Seat Selection -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                        <div class="bg-gray-50 border-b p-3 md:p-4"><h3 class="font-bold text-gray-700 text-sm md:text-base"><i class="fa-solid fa-chair text-jambo-slate mr-2"></i> Seat Selection</h3></div>
+                        <div class="p-4 md:p-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-xs md:text-sm text-gray-600 mb-2">Select your preferred seat. Standard seats are included free of charge.</p>
+                                <select id="seat-pref" onchange="window.updateSeatCost(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm">
+                                    <option value="0">Random Assignment (Free)</option>
+                                    <option value="0">Window Seat (Free)</option>
+                                    <option value="0">Aisle Seat (Free)</option>
+                                    <option value="1500">Extra Legroom (+ KES 1,500)</option>
+                                </select>
+                            </div>
+                            <div class="hidden md:block w-32 h-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center opacity-70">
+                                <i class="fa-solid fa-plane text-2xl text-gray-400 transform -rotate-45"></i>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Add Baggage Section -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                        <div class="bg-gray-50 border-b p-4"><h3 class="font-bold text-gray-700"><i class="fa-solid fa-suitcase-rolling text-jambo-slate mr-2"></i> Baggage Options</h3></div>
-                        <div class="p-6">
-                            <p class="text-sm text-gray-600 mb-4">Cabin baggage (10kg) is included free of charge. Need more space? Add checked luggage here to save compared to airport prices.</p>
-                            <div class="flex items-center justify-between p-4 border-2 border-gray-100 rounded-lg hover:border-jambo-red transition bg-gray-50">
-                                <div class="flex items-center gap-4">
-                                    <div class="bg-white p-3 rounded shadow-sm"><i class="fa-solid fa-suitcase text-2xl text-jambo-red"></i></div>
+                        <div class="bg-gray-50 border-b p-3 md:p-4"><h3 class="font-bold text-gray-700 text-sm md:text-base"><i class="fa-solid fa-suitcase-rolling text-jambo-slate mr-2"></i> Baggage Options</h3></div>
+                        <div class="p-4 md:p-6">
+                            <div class="bg-blue-50 border border-blue-100 text-blue-800 p-3 rounded-lg text-xs md:text-sm mb-4 flex items-start gap-2">
+                                <i class="fa-solid fa-info-circle mt-0.5"></i>
+                                <span>Cabin baggage (10kg, max 55 x 35 x 25 cm) is included <strong>free of charge</strong> for all passengers.</span>
+                            </div>
+                            <p class="text-xs md:text-sm text-gray-600 mb-4">Need more space? Add checked luggage here to save compared to airport prices.</p>
+                            
+                            <div class="flex flex-col sm:flex-row items-center justify-between p-3 md:p-4 border-2 border-gray-100 rounded-lg hover:border-jambo-red transition bg-gray-50 gap-4">
+                                <div class="flex items-center gap-3 w-full sm:w-auto">
+                                    <div class="bg-white p-2 md:p-3 rounded shadow-sm"><i class="fa-solid fa-suitcase text-xl md:text-2xl text-jambo-red"></i></div>
                                     <div>
-                                        <p class="font-bold text-gray-800">+ 23kg Checked Bag</p>
-                                        <p class="text-sm text-jambo-red font-bold">KES 2,500 <span class="text-gray-500 font-normal text-xs">per bag</span></p>
+                                        <p class="font-bold text-gray-800 text-sm md:text-base">+ 23kg Checked Bag</p>
+                                        <p class="text-xs md:text-sm text-jambo-red font-bold">KES 1,050 <span class="text-gray-500 font-normal text-[10px] md:text-xs">per bag</span></p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 bg-white border rounded-full px-2 py-1 shadow-inner">
+                                <div class="flex items-center justify-between sm:justify-center gap-4 bg-white border rounded-full px-2 py-1 shadow-inner w-full sm:w-auto">
                                     <button type="button" onclick="window.updateBaggage(-1)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition">-</button>
-                                    <span id="baggage-count" class="font-bold text-lg w-4 text-center">0</span>
+                                    <span id="baggage-count" class="font-bold text-base md:text-lg w-6 text-center">0</span>
                                     <button type="button" onclick="window.updateBaggage(1)" class="w-8 h-8 rounded-full bg-jambo-red text-white font-bold hover:bg-jambo-darkred transition shadow">+</button>
                                 </div>
                             </div>
@@ -370,12 +407,12 @@
                     </div>
 
                     <!-- Prohibited Items & Guidelines -->
-                    <div class="bg-red-50 rounded-xl p-5 border border-red-200 mb-6 flex gap-4 items-start shadow-sm">
-                        <div class="bg-red-100 p-2 rounded-full mt-1"><i class="fa-solid fa-triangle-exclamation text-jambo-red text-xl"></i></div>
+                    <div class="bg-red-50 rounded-xl p-4 md:p-5 border border-red-200 mb-6 flex gap-3 md:gap-4 items-start shadow-sm">
+                        <div class="bg-red-100 p-2 rounded-full mt-1"><i class="fa-solid fa-triangle-exclamation text-jambo-red text-lg md:text-xl"></i></div>
                         <div class="flex-1">
-                            <h4 class="font-extrabold text-jambo-darkred mb-1">Restricted Items Guideline</h4>
-                            <p class="text-sm text-red-800 mb-3 font-medium">For safety, the following items are strictly prohibited in both cabin and checked baggage:</p>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-bold text-red-700">
+                            <h4 class="font-extrabold text-jambo-darkred mb-1 text-sm md:text-base">Restricted Items Guideline</h4>
+                            <p class="text-xs md:text-sm text-red-800 mb-3 font-medium">For safety, the following items are strictly prohibited in both cabin and checked baggage:</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] md:text-xs font-bold text-red-700">
                                 <span class="flex items-center gap-1.5 bg-white px-2 py-1.5 rounded shadow-sm"><i class="fa-solid fa-fire-flame-curved text-orange-500"></i> Flammables</span>
                                 <span class="flex items-center gap-1.5 bg-white px-2 py-1.5 rounded shadow-sm"><i class="fa-solid fa-spray-can text-gray-500"></i> Aerosols</span>
                                 <span class="flex items-center gap-1.5 bg-white px-2 py-1.5 rounded shadow-sm"><i class="fa-solid fa-burst text-red-600"></i> Explosives</span>
@@ -385,16 +422,16 @@
                     </div>
 
                     <!-- Terms and Conditions Checkbox -->
-                    <div class="mb-6 p-4 border rounded-xl bg-gray-50 border-gray-300">
+                    <div class="mb-6 p-3 md:p-4 border rounded-xl bg-gray-50 border-gray-300">
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="tc-agree" required onchange="window.toggleCheckoutBtn(this.checked)" class="mt-0.5 w-5 h-5 text-jambo-red focus:ring-jambo-red border-gray-300 rounded shadow-inner">
-                            <span class="text-sm text-gray-700 font-medium leading-tight">
+                            <input type="checkbox" id="tc-agree" required onchange="window.toggleCheckoutBtn(this.checked)" class="mt-0.5 w-4 h-4 md:w-5 md:h-5 text-jambo-red focus:ring-jambo-red border-gray-300 rounded shadow-inner">
+                            <span class="text-xs md:text-sm text-gray-700 font-medium leading-tight">
                                 I have read and agree to the <a href="#" class="text-jambo-red hover:underline">Terms & Conditions</a>, <a href="#" class="text-jambo-red hover:underline">Privacy Policy</a>, and acknowledge the restricted items guidelines above. I confirm all personal details match travel documents.
                             </span>
                         </label>
                     </div>
 
-                    <button type="submit" id="btn-to-pay" disabled class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg rounded-xl shadow-lg transition flex justify-center items-center gap-2 opacity-50 cursor-not-allowed">
+                    <button type="submit" id="btn-to-pay" disabled class="w-full py-3 md:py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-base md:text-lg rounded-xl shadow-lg transition flex justify-center items-center gap-2 opacity-50 cursor-not-allowed">
                         Continue to Payment <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </form>
@@ -407,65 +444,65 @@
     </div>
 
     <!-- PAGE 4: PAYMENT -->
-    <div id="page-payment" class="page-section max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <button onclick="window.showPage('checkout')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-6 flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Passenger Details</button>
+    <div id="page-payment" class="page-section max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+        <button onclick="window.showPage('checkout')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-4 md:mb-6 flex items-center text-sm md:text-base"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Details</button>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div>
-                <h2 class="text-3xl font-extrabold text-jambo-slate mb-6">Payment</h2>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-jambo-slate mb-4 md:mb-6">Payment</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
                     
                     <!-- Tabs -->
                     <div class="flex border-b border-gray-200 mb-6">
-                        <button id="tab-mpesa" onclick="window.switchPayment('mpesa')" class="flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600 outline-none">M-PESA</button>
-                        <button id="tab-card" onclick="window.switchPayment('card')" class="flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none">Credit/Debit Card</button>
+                        <button id="tab-mpesa" onclick="window.switchPayment('mpesa')" class="flex-1 py-3 text-sm md:text-base font-bold text-green-600 border-b-2 border-green-600 outline-none">M-PESA</button>
+                        <button id="tab-card" onclick="window.switchPayment('card')" class="flex-1 py-3 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none">Credit/Debit Card</button>
                     </div>
 
                     <!-- M-PESA View -->
                     <div id="view-mpesa">
-                        <p class="text-sm text-gray-600 mb-4">Enter your Safaricom M-PESA number. A payment request will be sent to your phone.</p>
+                        <p class="text-xs md:text-sm text-gray-600 mb-4">Enter your Safaricom M-PESA number. A payment request will be sent to your phone.</p>
                         <div class="flex items-center border border-green-500 rounded-lg overflow-hidden mb-6 bg-green-50">
-                            <span class="px-4 font-bold text-green-700 border-r border-green-500">+254</span>
-                            <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 outline-none bg-transparent font-bold text-gray-800">
+                            <span class="px-3 md:px-4 font-bold text-green-700 border-r border-green-500 text-sm md:text-base">+254</span>
+                            <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-3 md:px-4 py-2 md:py-3 outline-none bg-transparent font-bold text-gray-800 text-sm md:text-base">
                         </div>
-                        <button type="button" onclick="window.processMpesaPush()" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
+                        <button type="button" onclick="window.processMpesaPush()" class="w-full py-3 md:py-4 bg-green-600 hover:bg-green-700 text-white font-extrabold text-base md:text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
                             <i class="fa-solid fa-mobile-screen"></i> Pay KES <span class="pay-amount-display"></span>
                         </button>
                         
                         <!-- Hidden Paybill Instructions (Revealed if push fails) -->
-                        <div id="mpesa-paybill-instructions" class="hidden mt-6 bg-red-50 border border-red-200 rounded-xl p-5 text-sm">
-                            <h4 class="font-extrabold text-red-700 mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> STK Push Failed / Timed Out</h4>
+                        <div id="mpesa-paybill-instructions" class="hidden mt-6 bg-red-50 border border-red-200 rounded-xl p-4 md:p-5 text-xs md:text-sm">
+                            <h4 class="font-extrabold text-red-700 mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> STK Push Timed Out</h4>
                             <p class="text-gray-700 mb-3">Please use M-PESA Paybill to complete your booking securely:</p>
-                            <ol class="list-decimal pl-5 text-gray-800 space-y-1 font-medium">
+                            <ol class="list-decimal pl-5 text-gray-800 space-y-2 font-medium">
                                 <li>Go to M-PESA Menu > Lipa na M-PESA > Paybill</li>
-                                <li>Business Number: <strong class="text-black">737373</strong></li>
-                                <li>Account Number: <strong class="text-jambo-red text-lg" id="paybill-account"></strong></li>
+                                <li class="flex items-center">Business Number: <strong class="text-black ml-1">542542</strong> <i id="copy-bn" class="fa-solid fa-copy cursor-pointer text-gray-400 hover:text-jambo-red ml-2 text-base transition-colors" onclick="window.copyText('542542', 'copy-bn')" title="Copy Business Number"></i></li>
+                                <li class="flex items-center">Your Account Number: <strong class="text-jambo-red text-base md:text-lg ml-1">01708965396150</strong> <i id="copy-acc" class="fa-solid fa-copy cursor-pointer text-gray-400 hover:text-jambo-red ml-2 text-base transition-colors" onclick="window.copyText('01708965396150', 'copy-acc')" title="Copy Account Number"></i></li>
                                 <li>Amount: <strong class="text-black">KES <span class="pay-amount-display"></span></strong></li>
                             </ol>
-                            <button onclick="window.confirmPaybillPayment()" class="mt-4 w-full py-3 bg-jambo-slate text-white rounded-lg font-bold hover:bg-gray-800 shadow transition">I have completed the Paybill transaction</button>
+                            <button onclick="window.confirmPaybillPayment()" class="mt-5 w-full py-3 bg-jambo-slate text-white rounded-lg font-bold hover:bg-gray-800 shadow transition">I have completed the Paybill transaction</button>
                         </div>
                     </div>
 
                     <!-- Card View -->
                     <div id="view-card" class="hidden">
-                        <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="grid grid-cols-2 gap-3 md:gap-4 mb-6">
                             <div class="col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Card Number</label>
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Card Number</label>
                                 <div class="relative">
-                                    <i class="fa-brands fa-cc-visa absolute right-3 top-3.5 text-gray-400 text-xl"></i>
-                                    <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium tracking-widest text-gray-800">
+                                    <i class="fa-brands fa-cc-visa absolute right-3 top-2.5 md:top-3.5 text-gray-400 text-lg md:text-xl"></i>
+                                    <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium tracking-widest text-gray-800 text-sm md:text-base">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
-                                <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center text-gray-800">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
+                                <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center text-gray-800 text-sm md:text-base">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">CVV</label>
-                                <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="•••" maxlength="4" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center tracking-widest text-gray-800">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">CVV</label>
+                                <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="•••" maxlength="4" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center tracking-widest text-gray-800 text-sm md:text-base">
                             </div>
                         </div>
-                        <button type="button" onclick="window.processCardPayment()" class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
+                        <button type="button" onclick="window.processCardPayment()" class="w-full py-3 md:py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-base md:text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
                             <i class="fa-solid fa-lock"></i> Pay KES <span class="pay-amount-display"></span> Securely
                         </button>
                     </div>
@@ -478,67 +515,116 @@
     </div>
 
     <!-- PAGE 5: CONFIRMATION -->
-    <div id="page-confirmation" class="page-section max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <div class="bg-white p-10 rounded-2xl shadow-xl border-t-8 border-green-500">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-check text-4xl text-green-500"></i>
+    <div id="page-confirmation" class="page-section max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 text-center">
+        <div class="bg-white p-6 md:p-10 rounded-2xl shadow-xl border-t-8 border-green-500">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+                <i class="fa-solid fa-check text-3xl md:text-4xl text-green-500"></i>
             </div>
-            <h1 class="text-4xl font-extrabold text-jambo-slate mb-2">Booking Confirmed!</h1>
-            <p class="text-gray-600 mb-8 text-lg">Thank you for flying Jambojet. Your e-ticket has been successfully sent to your email.</p>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-jambo-slate mb-2">Booking Confirmed!</h1>
+            <p class="text-gray-600 mb-6 md:mb-8 text-sm md:text-lg">Thank you for flying Jambojet. Your e-ticket has been successfully sent to your email.</p>
             
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 inline-block mb-8 min-w-[250px]">
-                <p class="text-xs uppercase font-bold text-gray-400 mb-1">Booking Reference (PNR)</p>
-                <p id="confirm-ref" class="text-5xl font-extrabold text-jambo-red tracking-widest"></p>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 inline-block mb-6 md:mb-8 min-w-[200px] md:min-w-[250px]">
+                <p class="text-[10px] md:text-xs uppercase font-bold text-gray-400 mb-1">Booking Reference (PNR)</p>
+                <p id="confirm-ref" class="text-4xl md:text-5xl font-extrabold text-jambo-red tracking-widest"></p>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="window.showPage('checkin')" class="px-8 py-4 bg-jambo-slate text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg">Manage Trip / Web Check-In</button>
-                <button onclick="window.location.reload()" class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition shadow-sm">Book Another Flight</button>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+                <button onclick="window.showPage('checkin')" class="px-6 py-3 md:px-8 md:py-4 bg-jambo-slate text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg text-sm md:text-base">Manage Trip / Web Check-In</button>
+                <button onclick="window.location.reload()" class="px-6 py-3 md:px-8 md:py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition shadow-sm text-sm md:text-base">Book Another Flight</button>
             </div>
         </div>
     </div>
 
     <!-- PAGE 6: WEB CHECK-IN / MY TRIPS -->
-    <div id="page-checkin" class="page-section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h2 class="text-3xl font-extrabold text-jambo-slate mb-6">Web Check-in & My Trips</h2>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
-            <p class="text-gray-600 mb-6">Retrieve your booking to select seats, add baggage, check-in online, or download your PDF e-ticket/boarding pass.</p>
-            <form onsubmit="window.lookupBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+    <div id="page-checkin" class="page-section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-jambo-slate mb-4 md:mb-6">Web Check-in & My Trips</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8 mb-6 md:mb-8">
+            <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6">Retrieve your booking to view details, check-in online, or download your PDF e-ticket.</p>
+            <form onsubmit="window.lookupBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 items-end">
                 <div class="md:col-span-1">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Booking Reference (PNR)</label>
-                    <input type="text" id="lookup-ref" required placeholder="e.g. A1B2C3" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none uppercase font-bold text-jambo-slate">
+                    <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Booking Reference (PNR)</label>
+                    <input type="text" id="lookup-ref" required placeholder="e.g. A1B2C3" class="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none uppercase font-bold text-jambo-slate text-sm md:text-base">
                 </div>
                 <div class="md:col-span-1">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Last Name</label>
-                    <input type="text" id="lookup-lname" required placeholder="Passenger Last Name" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none">
+                    <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Last Name</label>
+                    <input type="text" id="lookup-lname" required placeholder="Passenger Last Name" class="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm md:text-base">
                 </div>
-                <div class="md:col-span-1">
-                    <button type="submit" class="w-full py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded shadow transition flex justify-center items-center gap-2"><i class="fa-solid fa-search"></i> Find Booking</button>
+                <div class="md:col-span-1 mt-2 md:mt-0">
+                    <button type="submit" class="w-full py-2 md:py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded shadow transition flex justify-center items-center gap-2 text-sm md:text-base"><i class="fa-solid fa-search"></i> Find Booking</button>
                 </div>
             </form>
         </div>
 
+        <!-- The PDF Container wrapper, ensuring it is visible but styling is controlled for html2pdf -->
         <div id="booking-result" class="hidden">
             <!-- Boarding pass rendering here via JS -->
         </div>
     </div>
 
-    <!-- MOCK STATIC PAGES -->
-    <div id="page-destinations" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-5xl font-extrabold text-jambo-slate">Our Destinations</h1><p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">Explore our extensive network across Kenya and East Africa. With daily flights to Mombasa, Kisumu, Eldoret, Malindi, Diani, Lamu, and Goma.</p><img src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1000&auto=format&fit=crop" class="mt-8 mx-auto rounded-xl shadow-lg opacity-80 max-h-[400px] object-cover w-full"></div>
-    <div id="page-offers" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-5xl font-extrabold text-jambo-slate">Special Offers</h1><div class="bg-jambo-gold text-jambo-slate inline-block px-4 py-1 rounded-full font-bold mt-4 mb-6">10 YEARS OF FLYING</div><p class="text-xl text-gray-600 max-w-2xl mx-auto">To celebrate a decade in the skies, we are offering exclusive Smart Economy fares starting at just <strong class="text-jambo-red">KES 2,026</strong> for flights booked 4+ days in advance for travel this June.</p><img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=1000&auto=format&fit=crop" class="mt-8 mx-auto rounded-xl shadow-lg opacity-90 max-h-[400px] object-cover w-full"></div>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-300 py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div><h4 class="text-white font-extrabold mb-4">About Jambojet</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Our Story</li><li>Careers</li><li>Sustainability</li></ul></div>
-            <div><h4 class="text-white font-extrabold mb-4">Products</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>JM Rewards</li><li>Jaza Pole Pole</li><li>Cargo</li></ul></div>
-            <div><h4 class="text-white font-extrabold mb-4">Support</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Manage Booking</li><li>FAQs</li><li>Contact Us</li></ul></div>
-            <div>
-                <h4 class="text-white font-extrabold mb-4">Secure Payments</h4>
-                <div class="flex space-x-2"><span class="px-2 py-1 bg-white text-blue-900 font-bold rounded text-xs shadow">VISA</span><span class="px-2 py-1 bg-white text-red-600 font-bold rounded text-xs shadow">MasterCard</span><span class="px-2 py-1 bg-green-600 text-white font-bold rounded text-xs shadow">M-PESA</span></div>
+    <!-- STATIC PAGES -->
+    <div id="page-destinations" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-jambo-slate">Our Destinations</h1>
+        <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">Explore our extensive network across Kenya and East Africa. Daily flights connecting you to business, leisure, and home.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            <div class="bg-white rounded-xl shadow overflow-hidden relative group">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop" class="w-full h-48 object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Nairobi</h3></div>
+            </div>
+            <div class="bg-white rounded-xl shadow overflow-hidden relative group">
+                <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=500&auto=format&fit=crop" class="w-full h-48 object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Mombasa</h3></div>
+            </div>
+            <div class="bg-white rounded-xl shadow overflow-hidden relative group">
+                <img src="https://images.unsplash.com/photo-1623831846435-0fcb21bdab72?w=500&auto=format&fit=crop" class="w-full h-48 object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Kisumu</h3></div>
+            </div>
+            <div class="bg-white rounded-xl shadow overflow-hidden relative group">
+                <img src="https://images.unsplash.com/photo-1560067425-eb45231c5ab4?w=500&auto=format&fit=crop" class="w-full h-48 object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Diani</h3></div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 border-t border-slate-700 pt-8 text-sm text-center">
+        <button onclick="window.showPage('home')" class="mt-10 px-8 py-4 bg-jambo-red text-white font-bold rounded-lg shadow hover:bg-jambo-darkred transition">Book a Flight Now</button>
+    </div>
+
+    <div id="page-offers" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-jambo-slate">Special Offers</h1>
+        <div class="bg-jambo-gold text-jambo-slate inline-block px-4 py-1 rounded-full font-bold mt-4 mb-6 text-sm md:text-base">10 YEARS OF FLYING</div>
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12">To celebrate a decade in the skies, we are offering exclusive Smart Economy fares starting at just <strong class="text-jambo-red text-2xl">KES 2,026</strong>. Valid for flights booked 4+ days in advance for travel this month only!</p>
+        
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto flex flex-col md:flex-row text-left border border-gray-100">
+            <div class="md:w-1/2">
+                <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=800&auto=format&fit=crop" class="w-full h-full object-cover">
+            </div>
+            <div class="md:w-1/2 p-8 md:p-10 flex flex-col justify-center">
+                <h3 class="text-3xl font-extrabold text-jambo-slate mb-4">The Anniversary Sale</h3>
+                <p class="text-gray-600 mb-6">Enjoy our award-winning low-cost service across the network. Includes a free 10kg cabin bag. Seats are highly limited and subject to availability.</p>
+                <ul class="space-y-2 mb-8 text-sm font-bold text-gray-700">
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Book >4 Days in advance</li>
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Valid for current month travel</li>
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Excludes Business Premier</li>
+                </ul>
+                <button onclick="window.showPage('home')" class="w-full py-4 bg-jambo-red text-white font-bold rounded-lg shadow hover:bg-jambo-darkred transition">Search Promo Flights</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-10 md:py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-sm md:text-base">
+            <div><h4 class="text-white font-extrabold mb-4">About Jambojet</h4><ul class="space-y-2 hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Our Story</li><li>Careers</li><li>Sustainability</li></ul></div>
+            <div><h4 class="text-white font-extrabold mb-4">Products</h4><ul class="space-y-2 hover:*:text-white hover:*:cursor-pointer transition-colors"><li>JM Rewards</li><li>Jaza Pole Pole</li><li>Cargo</li></ul></div>
+            <div><h4 class="text-white font-extrabold mb-4">Support</h4><ul class="space-y-2 hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Manage Booking</li><li>FAQs</li><li>Contact Us</li></ul></div>
+            <div>
+                <h4 class="text-white font-extrabold mb-4">Secure Payments</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 bg-white text-blue-900 font-bold rounded text-xs shadow">VISA</span>
+                    <span class="px-2 py-1 bg-white text-red-600 font-bold rounded text-xs shadow">MasterCard</span>
+                    <span class="px-2 py-1 bg-green-600 text-white font-bold rounded text-xs shadow">M-PESA</span>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 border-t border-slate-700 pt-6 text-xs md:text-sm text-center">
             &copy; 2026 Jambojet Pro Web App. A Full Stack School Project.
         </div>
     </footer>
@@ -572,7 +658,7 @@
             selectedReturn: null,
             bookingRef: '',
             passengerData: {},
-            extras: { baggageCount: 0, baggageCost: 0 }
+            extras: { baggageCount: 0, baggageCost: 0, seatCost: 0, promoDiscount: 0 }
         };
 
         // Initialize Auth Securely
@@ -604,8 +690,32 @@
             else document.getElementById('global-loader').classList.add('hidden');
         };
 
+        // Copy to clipboard utility
+        window.copyText = (text, btnId) => {
+            // Create temporary textarea as fallback for iframes where navigator.clipboard might be restricted
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const icon = document.getElementById(btnId);
+            icon.classList.remove('fa-copy');
+            icon.classList.add('fa-check', 'text-green-500');
+            
+            // Show toast
+            const toast = document.getElementById('toast-notification');
+            toast.classList.remove('opacity-0');
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-check', 'text-green-500');
+                icon.classList.add('fa-copy');
+                toast.classList.add('opacity-0');
+            }, 2000);
+        };
+
         // Navigation System
-        const originalShowPage = window.showPage;
         window.showPage = (pageId) => {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('page-active'));
             document.getElementById(`page-${pageId}`).classList.add('page-active');
@@ -618,11 +728,11 @@
                 for(let i=1; i<=AppState.search.children; i++) {
                     cc.innerHTML += `
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                            <div class="bg-gray-50 border-b p-4"><h3 class="font-bold text-gray-700"><i class="fa-solid fa-child text-jambo-slate mr-2"></i> Child ${i}</h3></div>
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                            <div class="bg-gray-50 border-b p-3 md:p-4"><h3 class="font-bold text-gray-700 text-sm md:text-base"><i class="fa-solid fa-child text-jambo-slate mr-2"></i> Child ${i}</h3></div>
+                            <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none text-sm"></div>
                             </div>
                         </div>`;
                 }
@@ -640,6 +750,17 @@
         });
 
         // Search & Logic
+        window.handleOriginChange = (val) => {
+            const dest = document.getElementById('destination');
+            Array.from(dest.options).forEach(opt => {
+                if(opt.value !== "") {
+                    opt.disabled = opt.value === val;
+                }
+            });
+            // If current selected destination is the new origin, reset it
+            if(dest.value === val) dest.value = "";
+        };
+
         window.toggleReturnDate = (show) => {
             const container = document.getElementById('return-container');
             const retInput = document.getElementById('return');
@@ -675,7 +796,7 @@
             AppState.search = { origin: o, destination: d, depart: dep, return: ret, pax: ad + ch, adults: ad, children: ch, type: type };
             AppState.selectedOutbound = null;
             AppState.selectedReturn = null;
-            AppState.extras = { baggageCount: 0, baggageCost: 0 };
+            AppState.extras = { baggageCount: 0, baggageCost: 0, seatCost: 0, promoDiscount: 0 };
             
             toggleLoader(true, "Searching Flights & Applying Promos...");
             
@@ -727,34 +848,34 @@
                 const bizPrice = isPromo ? 8500 : Math.floor(basePrice * 2.5); // Biz doesn't get 2026 promo
                 
                 // Advanced Scarcity Trigger (random tickets remaining < 5)
-                const isScarce = Math.random() > 0.5;
+                const isScarce = Math.random() > 0.6;
                 const seatsLeftNum = Math.floor(Math.random()*4) + 1;
-                const seatsLeftHtml = isScarce ? `<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-100 text-jambo-red border border-red-200 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md whitespace-nowrap badge-scarcity z-10"><i class="fa-solid fa-fire mr-1"></i> Only ${seatsLeftNum} seats left!</div>` : '';
+                const seatsLeftHtml = isScarce ? `<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-100 text-jambo-red border border-red-200 text-[9px] md:text-[10px] font-extrabold px-2 py-0.5 md:px-3 md:py-1 rounded-full shadow-md whitespace-nowrap badge-scarcity z-10"><i class="fa-solid fa-fire mr-1"></i> Only ${seatsLeftNum} seats left!</div>` : '';
 
                 // Premium Alert if near date
-                const premiumAlert = (!isPromo && diffDays < 4) ? `<span class="bg-orange-100 text-orange-800 text-[10px] font-bold px-2 py-0.5 rounded ml-2">LATE BOOKING FARE</span>` : '';
+                const premiumAlert = (!isPromo && diffDays < 4) ? `<span class="bg-orange-100 text-orange-800 text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded ml-2">LATE BOOKING FARE</span>` : '';
 
                 container.innerHTML += `
                     <div id="card-${fl.id}" class="bg-white border border-gray-200 rounded-xl overflow-visible flex flex-col md:flex-row transition hover:border-jambo-red hover:shadow-lg mb-6 relative">
-                        <div class="p-6 flex-1 flex items-center border-b md:border-b-0 md:border-r border-gray-100">
-                            <div class="mr-6 bg-red-50 p-3 rounded-full text-jambo-red shadow-sm"><i class="fa-solid fa-plane"></i></div>
+                        <div class="p-4 md:p-6 flex-1 flex items-center border-b md:border-b-0 md:border-r border-gray-100">
+                            <div class="mr-4 md:mr-6 bg-red-50 p-2 md:p-3 rounded-full text-jambo-red shadow-sm"><i class="fa-solid fa-plane"></i></div>
                             <div>
-                                <h4 class="text-xl font-extrabold text-jambo-slate">${fl.time} ${premiumAlert}</h4>
-                                <p class="text-sm text-gray-500 font-medium mt-1">Direct • 1h 15m Flight</p>
+                                <h4 class="text-lg md:text-xl font-extrabold text-jambo-slate">${fl.time} ${premiumAlert}</h4>
+                                <p class="text-xs md:text-sm text-gray-500 font-medium mt-1">Direct • 1h 15m Flight</p>
                             </div>
                         </div>
                         <div class="flex flex-1">
-                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Smart Economy', ${ecoPrice})" class="flex-1 p-4 text-center border-r border-gray-100 hover:bg-red-50 cursor-pointer transition relative group flex flex-col justify-center">
+                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Smart Economy', ${ecoPrice})" class="flex-1 p-3 md:p-4 text-center border-r border-gray-100 hover:bg-red-50 cursor-pointer transition relative group flex flex-col justify-center">
                                 ${seatsLeftHtml}
-                                ${isPromo ? '<div class="absolute top-0 right-0 bg-jambo-gold text-xs font-bold px-2 py-0.5 rounded-bl shadow">10 YR PROMO</div>' : ''}
-                                <h5 class="font-bold text-gray-700 text-sm uppercase tracking-wide">Economy</h5>
-                                <p class="text-2xl font-extrabold ${isPromo ? 'text-jambo-gold' : 'text-jambo-red'} my-2">KES ${ecoPrice.toLocaleString()}</p>
-                                <button class="px-4 py-2 border-2 ${isPromo ? 'border-jambo-gold text-jambo-gold group-hover:bg-jambo-gold group-hover:text-white' : 'border-jambo-red text-jambo-red group-hover:bg-jambo-red group-hover:text-white'} rounded-lg text-sm w-full font-bold transition shadow-sm">Select</button>
+                                ${isPromo ? '<div class="absolute top-0 right-0 bg-jambo-gold text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded-bl shadow">10 YR PROMO</div>' : ''}
+                                <h5 class="font-bold text-gray-700 text-xs md:text-sm uppercase tracking-wide">Economy</h5>
+                                <p class="text-lg md:text-2xl font-extrabold ${isPromo ? 'text-jambo-gold' : 'text-jambo-red'} my-1 md:my-2">KES ${ecoPrice.toLocaleString()}</p>
+                                <button class="px-2 py-1.5 md:px-4 md:py-2 border-2 ${isPromo ? 'border-jambo-gold text-jambo-gold group-hover:bg-jambo-gold group-hover:text-white' : 'border-jambo-red text-jambo-red group-hover:bg-jambo-red group-hover:text-white'} rounded-lg text-xs md:text-sm w-full font-bold transition shadow-sm">Select</button>
                             </div>
-                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Business Premier', ${bizPrice})" class="flex-1 p-4 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition relative group flex flex-col justify-center">
-                                <h5 class="font-bold text-jambo-slate text-sm uppercase tracking-wide">Business</h5>
-                                <p class="text-2xl font-extrabold text-jambo-slate my-2">KES ${bizPrice.toLocaleString()}</p>
-                                <button class="px-4 py-2 border-2 border-jambo-slate text-jambo-slate rounded-lg text-sm w-full font-bold group-hover:bg-jambo-slate group-hover:text-white transition shadow-sm">Select</button>
+                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Business Premier', ${bizPrice})" class="flex-1 p-3 md:p-4 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition relative group flex flex-col justify-center">
+                                <h5 class="font-bold text-jambo-slate text-xs md:text-sm uppercase tracking-wide">Business</h5>
+                                <p class="text-lg md:text-2xl font-extrabold text-jambo-slate my-1 md:my-2">KES ${bizPrice.toLocaleString()}</p>
+                                <button class="px-2 py-1.5 md:px-4 md:py-2 border-2 border-jambo-slate text-jambo-slate rounded-lg text-xs md:text-sm w-full font-bold group-hover:bg-jambo-slate group-hover:text-white transition shadow-sm">Select</button>
                             </div>
                         </div>
                     </div>
@@ -785,12 +906,12 @@
 
             if(AppState.selectedOutbound) {
                 total += AppState.selectedOutbound.price;
-                document.getElementById('outbound-summary').innerHTML = `<p class="text-xs font-bold text-gray-400 uppercase mb-1">Outbound</p><p class="font-bold text-jambo-slate">${AppState.selectedOutbound.time} <span class="text-jambo-red font-normal">(${AppState.selectedOutbound.class})</span></p>`;
+                document.getElementById('outbound-summary').innerHTML = `<p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">Outbound</p><p class="font-bold text-jambo-slate text-sm md:text-base">${AppState.selectedOutbound.time} <span class="text-jambo-red font-normal">(${AppState.selectedOutbound.class})</span></p>`;
             }
             if(s.type === 'return') {
                 if(AppState.selectedReturn) {
                     total += AppState.selectedReturn.price;
-                    document.getElementById('return-summary').innerHTML = `<p class="text-xs font-bold text-gray-400 uppercase mb-1">Return</p><p class="font-bold text-jambo-slate">${AppState.selectedReturn.time} <span class="text-jambo-red font-normal">(${AppState.selectedReturn.class})</span></p>`;
+                    document.getElementById('return-summary').innerHTML = `<p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">Return</p><p class="font-bold text-jambo-slate text-sm md:text-base">${AppState.selectedReturn.time} <span class="text-jambo-red font-normal">(${AppState.selectedReturn.class})</span></p>`;
                 }
                 ready = AppState.selectedOutbound && AppState.selectedReturn;
             } else {
@@ -799,6 +920,7 @@
 
             total *= s.pax;
             total += AppState.extras.baggageCost;
+            total += AppState.extras.seatCost * s.pax;
             
             document.getElementById('pax-count').innerText = s.pax;
             document.getElementById('running-total').innerText = total.toLocaleString();
@@ -818,9 +940,39 @@
             if(count > 10) count = 10;
             
             AppState.extras.baggageCount = count;
-            AppState.extras.baggageCost = count * 2500;
+            AppState.extras.baggageCost = count * 1050; // New requested cost
             
             document.getElementById('baggage-count').innerText = count;
+            buildSidebar('checkout-summary-sidebar');
+            buildSidebar('payment-summary-sidebar');
+        };
+
+        window.updateSeatCost = (costStr) => {
+            AppState.extras.seatCost = parseInt(costStr);
+            buildSidebar('checkout-summary-sidebar');
+            buildSidebar('payment-summary-sidebar');
+        };
+
+        window.applyPromo = () => {
+            const code = document.getElementById('promo-code').value.toUpperCase().trim();
+            const msgEl = document.getElementById('promo-msg');
+            msgEl.classList.remove('hidden');
+            
+            if(code === 'JAMBO10') {
+                // 10% discount on base flight price (before baggage/seats)
+                let baseTotal = 0;
+                if(AppState.selectedOutbound) baseTotal += AppState.selectedOutbound.price;
+                if(AppState.selectedReturn) baseTotal += AppState.selectedReturn.price;
+                baseTotal *= AppState.search.pax;
+                
+                AppState.extras.promoDiscount = baseTotal * 0.10;
+                msgEl.innerText = "Promo applied! 10% off flights.";
+                msgEl.className = "text-xs mt-1 text-green-600 font-bold";
+            } else {
+                AppState.extras.promoDiscount = 0;
+                msgEl.innerText = "Invalid Promo Code.";
+                msgEl.className = "text-xs mt-1 text-red-600 font-bold";
+            }
             buildSidebar('checkout-summary-sidebar');
             buildSidebar('payment-summary-sidebar');
         };
@@ -832,6 +984,7 @@
                 emailInput.focus(); // Simple UX trigger
             } else { 
                 emailInput.value = ''; 
+                document.getElementById('confirm-email').value = ''; 
                 document.getElementById('phone').value = '';
                 document.getElementById('address').value = ''; 
             }
@@ -865,19 +1018,28 @@
         window.proceedToPayment = (e) => {
             e.preventDefault();
             
+            const email = document.getElementById('email').value;
+            const confirmEmail = document.getElementById('confirm-email').value;
+            
+            if(email !== confirmEmail) {
+                window.showModal("Email Mismatch", "The email addresses do not match. Please ensure both fields are identical.");
+                return;
+            }
+
             if(!document.getElementById('tc-agree').checked) {
                 window.showModal("Action Required", "You must agree to the Terms & Conditions and Restricted Items guidelines to proceed.");
                 return;
             }
 
             AppState.passengerData = {
+                title: document.getElementById('title').value,
                 firstName: document.getElementById('fname').value,
                 lastName: document.getElementById('lname').value,
                 nationality: document.getElementById('nationality').value,
                 docType: document.getElementById('docType').value,
                 idPass: document.getElementById('idpass').value,
                 dob: document.getElementById('dob').value,
-                email: document.getElementById('email').value,
+                email: email,
                 phone: document.getElementById('phone').value,
                 address: document.getElementById('address').value,
                 childrenArr: []
@@ -900,7 +1062,13 @@
             let total = 0;
             if(AppState.selectedOutbound) total += AppState.selectedOutbound.price;
             if(AppState.selectedReturn) total += AppState.selectedReturn.price;
-            return (total * AppState.search.pax) + AppState.extras.baggageCost;
+            
+            total *= AppState.search.pax;
+            total += AppState.extras.baggageCost;
+            total += (AppState.extras.seatCost * AppState.search.pax);
+            total -= AppState.extras.promoDiscount;
+            
+            return Math.max(0, total); // Ensure never goes negative
         }
 
         function buildSidebar(elementId) {
@@ -909,53 +1077,75 @@
             if(!target) return;
             
             let html = `
-                <div class="bg-white rounded-xl p-6 border border-gray-200 sticky top-24 shadow-lg">
-                    <h3 class="font-extrabold text-xl mb-4 border-b pb-2 text-jambo-slate">Trip Summary</h3>
+                <div class="bg-white rounded-xl p-4 md:p-6 border border-gray-200 sticky top-20 md:top-24 shadow-lg">
+                    <h3 class="font-extrabold text-lg md:text-xl mb-4 border-b pb-2 text-jambo-slate">Trip Summary</h3>
                     <div class="mb-4">
-                        <p class="text-xs text-gray-500 uppercase font-bold">Outbound</p>
-                        <p class="font-bold text-jambo-slate">${s.origin.split(' ')[0]} ➔ ${s.destination.split(' ')[0]}</p>
-                        <p class="text-sm text-gray-600">${new Date(s.depart).toDateString()} • ${AppState.selectedOutbound?.time || ''}</p>
+                        <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold">Outbound</p>
+                        <p class="font-bold text-jambo-slate text-sm md:text-base">${s.origin.split(' ')[0]} ➔ ${s.destination.split(' ')[0]}</p>
+                        <p class="text-xs md:text-sm text-gray-600">${new Date(s.depart).toDateString()} • ${AppState.selectedOutbound?.time || ''}</p>
                     </div>
             `;
             if(s.type === 'return') {
                 html += `
                     <div class="mb-4">
-                        <p class="text-xs text-gray-500 uppercase font-bold">Return</p>
-                        <p class="font-bold text-jambo-slate">${s.destination.split(' ')[0]} ➔ ${s.origin.split(' ')[0]}</p>
-                        <p class="text-sm text-gray-600">${new Date(s.return).toDateString()} • ${AppState.selectedReturn?.time || ''}</p>
+                        <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold">Return</p>
+                        <p class="font-bold text-jambo-slate text-sm md:text-base">${s.destination.split(' ')[0]} ➔ ${s.origin.split(' ')[0]}</p>
+                        <p class="text-xs md:text-sm text-gray-600">${new Date(s.return).toDateString()} • ${AppState.selectedReturn?.time || ''}</p>
                     </div>`;
             }
 
-            let baggageHtml = AppState.extras.baggageCount > 0 ? `<div class="flex justify-between mb-2"><span class="text-gray-600">Checked Bags (${AppState.extras.baggageCount})</span><span class="font-bold text-jambo-slate">KES ${AppState.extras.baggageCost.toLocaleString()}</span></div>` : '';
+            let baggageHtml = AppState.extras.baggageCount > 0 ? `<div class="flex justify-between mb-2 text-sm"><span class="text-gray-600">Checked Bags (${AppState.extras.baggageCount})</span><span class="font-bold text-jambo-slate">KES ${AppState.extras.baggageCost.toLocaleString()}</span></div>` : '';
+            let seatHtml = AppState.extras.seatCost > 0 ? `<div class="flex justify-between mb-2 text-sm"><span class="text-gray-600">Premium Seats</span><span class="font-bold text-jambo-slate">KES ${(AppState.extras.seatCost * s.pax).toLocaleString()}</span></div>` : '';
+            let discountHtml = AppState.extras.promoDiscount > 0 ? `<div class="flex justify-between mb-2 text-sm"><span class="text-green-600">Promo Discount</span><span class="font-bold text-green-600">- KES ${AppState.extras.promoDiscount.toLocaleString()}</span></div>` : '';
 
             html += `
                     <div class="border-t border-gray-200 pt-4 mt-4">
-                        <div class="flex justify-between mb-2"><span class="text-gray-600">Adults</span><span class="font-bold">${s.adults}</span></div>
-                        <div class="flex justify-between mb-2"><span class="text-gray-600">Children</span><span class="font-bold">${s.children}</span></div>
+                        <div class="flex justify-between mb-2 text-sm"><span class="text-gray-600">Adults</span><span class="font-bold">${s.adults}</span></div>
+                        <div class="flex justify-between mb-2 text-sm"><span class="text-gray-600">Children</span><span class="font-bold">${s.children}</span></div>
+                        ${seatHtml}
                         ${baggageHtml}
-                        <div class="flex justify-between mb-2"><span class="text-gray-600">Taxes & Fees</span><span class="font-bold text-green-600"><i class="fa-solid fa-check"></i> Included</span></div>
+                        ${discountHtml}
+                        <div class="flex justify-between mb-2 text-sm"><span class="text-gray-600">Taxes & Fees</span><span class="font-bold text-green-600"><i class="fa-solid fa-check"></i> Included</span></div>
                         <div class="flex justify-between items-center mt-4 border-t border-gray-300 pt-4">
-                            <span class="font-extrabold text-lg">Total</span>
-                            <span class="font-extrabold text-2xl text-jambo-red">KES ${getGrandTotal().toLocaleString()}</span>
+                            <span class="font-extrabold text-base md:text-lg">Total</span>
+                            <span class="font-extrabold text-xl md:text-2xl text-jambo-red">KES ${getGrandTotal().toLocaleString()}</span>
                         </div>
+                    </div>
+                    
+                    <!-- Promo Code Block -->
+                    <div class="mt-4 border-t border-gray-100 pt-4">
+                        <div class="flex gap-2">
+                            <input type="text" id="promo-code" placeholder="Promo Code (e.g. JAMBO10)" class="flex-1 px-3 py-2 border rounded outline-none focus:ring-1 focus:ring-jambo-red text-xs md:text-sm uppercase font-bold text-gray-700">
+                            <button type="button" onclick="window.applyPromo()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs md:text-sm font-bold transition shadow">Apply</button>
+                        </div>
+                        <p id="promo-msg" class="hidden"></p>
                     </div>
                 </div>`;
             target.innerHTML = html;
+            
+            // Re-bind input value if it was previously set to prevent losing it on rebuild
+            if(AppState.extras.promoDiscount > 0 && target.querySelector('#promo-code')) {
+                 target.querySelector('#promo-code').value = 'JAMBO10';
+                 const msgEl = target.querySelector('#promo-msg');
+                 msgEl.classList.remove('hidden');
+                 msgEl.innerText = "Promo applied! 10% off flights.";
+                 msgEl.className = "text-xs mt-1 text-green-600 font-bold";
+            }
         }
 
         // Payment Logic
         window.switchPayment = (type) => {
             document.getElementById('view-mpesa').classList.add('hidden');
             document.getElementById('view-card').classList.add('hidden');
-            document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
-            document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
+            document.getElementById('tab-mpesa').className = "flex-1 py-3 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
+            document.getElementById('tab-card').className = "flex-1 py-3 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
             
             if(type === 'mpesa') {
                 document.getElementById('view-mpesa').classList.remove('hidden');
-                document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600 outline-none";
+                document.getElementById('tab-mpesa').className = "flex-1 py-3 text-sm md:text-base font-bold text-green-600 border-b-2 border-green-600 outline-none";
             } else {
                 document.getElementById('view-card').classList.remove('hidden');
-                document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-jambo-slate border-b-2 border-jambo-slate outline-none";
+                document.getElementById('tab-card').className = "flex-1 py-3 text-sm md:text-base font-bold text-jambo-slate border-b-2 border-jambo-slate outline-none";
             }
         };
 
@@ -969,7 +1159,6 @@
             setTimeout(() => {
                 toggleLoader(false);
                 if(!AppState.bookingRef) AppState.bookingRef = Math.random().toString(36).substring(2, 8).toUpperCase();
-                document.getElementById('paybill-account').innerText = AppState.bookingRef;
                 document.getElementById('mpesa-paybill-instructions').classList.remove('hidden');
                 window.showModal("M-PESA Timeout", "The M-PESA prompt timed out or was cancelled. Please use the manual Paybill option shown on the screen to secure your booking.");
             }, 7000);
@@ -1003,6 +1192,7 @@
 
             const bookingData = {
                 ref: AppState.bookingRef,
+                title: p.title,
                 lastName: p.lastName.toUpperCase(),
                 firstName: p.firstName,
                 email: p.email,
@@ -1032,9 +1222,9 @@
                     flightDetailsMsg += `\n\n🎒 BAGGAGE: ${AppState.extras.baggageCount}x 23kg Checked Bag(s) Included.`;
                 }
 
-                // 3. Send Email via EmailJS using User's exact requested IDs
+                // 3. Send Email via EmailJS
                 const templateParams = {
-                    to_name: p.firstName + " " + p.lastName,
+                    to_name: p.title + " " + p.lastName,
                     email: p.email,
                     order_id: AppState.bookingRef,
                     booking_ref: AppState.bookingRef,
@@ -1083,53 +1273,53 @@
                 const docSnap = querySnapshot.docs[0];
                 const bk = docSnap.data();
 
-                // Build Boarding Pass UI
+                // Build Boarding Pass UI (inline-styles used heavily here so PDF capture works reliably)
                 resContainer.innerHTML = `
-                    <div id="boarding-pass-pdf" class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-2xl relative">
-                        <div class="bg-jambo-red text-white p-6 flex justify-between items-center">
+                    <div id="boarding-pass-pdf" style="background: white;" class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-2xl">
+                        <div class="bg-jambo-red text-white p-4 md:p-6 flex justify-between items-center">
                             <div>
-                                <h3 class="font-extrabold text-3xl tracking-tighter">jambojet<span class="text-sm align-top">&reg;</span></h3>
-                                <p class="text-sm opacity-80 mt-1">E-Ticket & Boarding Pass</p>
+                                <h3 class="font-extrabold text-2xl md:text-3xl tracking-tighter">jambojet<span class="text-xs md:text-sm align-top">&reg;</span></h3>
+                                <p class="text-xs md:text-sm opacity-80 mt-1">E-Ticket & Boarding Pass</p>
                             </div>
-                            <span class="bg-white text-jambo-red font-extrabold px-4 py-2 rounded shadow uppercase tracking-wide">${bk.status}</span>
+                            <span class="bg-white text-jambo-red font-extrabold px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm rounded shadow uppercase tracking-wide">${bk.status}</span>
                         </div>
-                        <div class="p-8 flex flex-col md:flex-row gap-8">
+                        <div class="p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8">
                             <div class="flex-1">
-                                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Passenger Name</p>
-                                <p class="text-2xl font-extrabold text-jambo-slate mb-6">${bk.lastName}, ${bk.firstName}</p>
+                                <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-wider">Passenger Name</p>
+                                <p class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-4 md:mb-6">${bk.title ? bk.title+' ' : ''}${bk.lastName}, ${bk.firstName}</p>
                                 
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
-                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Outbound Flight</p>
-                                    <p class="text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-departure text-jambo-red mr-2"></i> ${bk.route}</p>
-                                    <p class="text-gray-600 font-medium mt-1">${bk.outbound.date} • ${bk.outbound.time}</p>
-                                    <p class="text-sm text-jambo-gold font-bold mt-1">${bk.outbound.class}</p>
+                                    <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Outbound Flight</p>
+                                    <p class="text-lg md:text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-departure text-jambo-red mr-2"></i> ${bk.route}</p>
+                                    <p class="text-sm md:text-base text-gray-600 font-medium mt-1">${bk.outbound.date} • ${bk.outbound.time}</p>
+                                    <p class="text-xs md:text-sm text-jambo-gold font-bold mt-1">${bk.outbound.class}</p>
                                 </div>
                                 
                                 ${bk.return ? `
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Return Flight</p>
-                                        <p class="text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-arrival text-jambo-red mr-2"></i> ${bk.route.split(' to ').reverse().join(' to ')}</p>
-                                        <p class="text-gray-600 font-medium mt-1">${bk.return.date} • ${bk.return.time}</p>
-                                        <p class="text-sm text-jambo-gold font-bold mt-1">${bk.return.class}</p>
+                                        <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Return Flight</p>
+                                        <p class="text-lg md:text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-arrival text-jambo-red mr-2"></i> ${bk.route.split(' to ').reverse().join(' to ')}</p>
+                                        <p class="text-sm md:text-base text-gray-600 font-medium mt-1">${bk.return.date} • ${bk.return.time}</p>
+                                        <p class="text-xs md:text-sm text-jambo-gold font-bold mt-1">${bk.return.class}</p>
                                     </div>
                                 ` : ''}
                             </div>
-                            <div class="md:w-1/3 border-t md:border-t-0 md:border-l border-gray-200 md:pl-8 flex flex-col justify-center items-center bg-gray-50 rounded-r-xl">
-                                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Booking Ref (PNR)</p>
-                                <p class="text-5xl font-extrabold text-jambo-slate tracking-widest">${bk.ref}</p>
-                                <div class="mt-8 p-4 bg-white rounded-xl shadow-inner border border-gray-200">
-                                    <i class="fa-solid fa-qrcode text-7xl text-jambo-slate"></i>
+                            <div class="md:w-1/3 border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-8 flex flex-col justify-center items-center bg-gray-50 md:rounded-r-xl">
+                                <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Booking Ref (PNR)</p>
+                                <p class="text-4xl md:text-5xl font-extrabold text-jambo-slate tracking-widest">${bk.ref}</p>
+                                <div class="mt-6 md:mt-8 p-4 bg-white rounded-xl shadow-inner border border-gray-200">
+                                    <i class="fa-solid fa-qrcode text-5xl md:text-7xl text-jambo-slate"></i>
                                 </div>
-                                <p class="text-xs text-gray-400 mt-4 text-center">Scan at bag drop</p>
+                                <p class="text-[10px] md:text-xs text-gray-400 mt-4 text-center">Scan at bag drop</p>
                             </div>
                         </div>
-                        <div class="bg-slate-900 text-white text-center p-3 text-xs">
-                            Please arrive at the airport at least 2 hours before departure. Gates close 40 minutes prior.
+                        <div class="bg-slate-900 text-white text-center p-3 text-[10px] md:text-xs">
+                            Please arrive at the airport at least 2 hours before departure. Gates close 40 minutes prior. 10kg cabin bag limit applies.
                         </div>
                     </div>
-                    <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-                        <button onclick="window.downloadPDF()" class="px-8 py-4 bg-jambo-slate text-white font-bold rounded-lg shadow-lg hover:bg-gray-800 transition"><i class="fa-solid fa-file-pdf mr-2"></i> Download PDF Ticket</button>
-                        ${bk.status === 'Confirmed' ? `<button onclick="window.performCheckIn('${docSnap.id}')" class="px-8 py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition"><i class="fa-solid fa-check-double mr-2"></i> Confirm Web Check-In</button>` : ''}
+                    <div class="mt-6 md:mt-8 flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
+                        <button onclick="window.downloadPDF()" class="px-6 py-3 md:px-8 md:py-4 bg-jambo-slate text-white font-bold rounded-lg shadow-lg hover:bg-gray-800 transition text-sm md:text-base"><i class="fa-solid fa-file-pdf mr-2"></i> Download PDF Ticket</button>
+                        ${bk.status === 'Confirmed' ? `<button onclick="window.performCheckIn('${docSnap.id}')" class="px-6 py-3 md:px-8 md:py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition text-sm md:text-base"><i class="fa-solid fa-check-double mr-2"></i> Confirm Web Check-In</button>` : ''}
                     </div>
                 `;
                 resContainer.classList.remove('hidden');
@@ -1156,15 +1346,28 @@
         };
 
         window.downloadPDF = () => {
+            // Scroll to top so html2canvas doesn't chop off the top of the element
+            window.scrollTo(0,0);
+            
             const element = document.getElementById('boarding-pass-pdf');
+            
+            // html2pdf options adjusted for more reliable rendering
             const opt = {
-                margin: 0.5,
-                filename: `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+                margin:       0.5,
+                filename:     `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            toggleLoader(true, "Generating PDF...");
+            html2pdf().set(opt).from(element).save().then(() => {
+                toggleLoader(false);
+            }).catch(err => {
+                console.error("PDF generation failed", err);
+                toggleLoader(false);
+                window.showModal("Export Error", "There was an issue creating the PDF. Please try again or take a screenshot.");
+            });
         };
 
     </script>
