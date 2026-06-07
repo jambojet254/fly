@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jambojet | Celebrate 10 Years of Flying</title>
     
+    <!-- Dynamic Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%23E61C24%22 d=%22M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z%22/></svg>" type="image/svg+xml">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -28,9 +31,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
-       (function(){
-          emailjs.init("V_Ve8vPtKwhGaDf_f");
-       })();
+       (function(){ emailjs.init("V_Ve8vPtKwhGaDf_f"); })();
     </script>
 
     <style>
@@ -45,7 +46,6 @@
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #E61C24; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         .badge-scarcity { animation: pulse-fast 1.5s infinite; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -53,55 +53,121 @@
 
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 4px solid #E61C24; }
         
-        /* Mobile optimizations for inputs */
         @media (max-width: 640px) {
             input[type="date"], select, input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="password"] {
-                font-size: 16px; /* Prevents iOS auto-zoom */
-                padding-top: 0.6rem;
-                padding-bottom: 0.6rem;
+                font-size: 16px; padding-top: 0.6rem; padding-bottom: 0.6rem;
             }
         }
         
-        /* Barcode Font Simulation */
         .font-barcode { font-family: 'Libre Barcode 39', cursive, monospace; font-size: 40px; letter-spacing: 2px; }
+        .uppercase-input { text-transform: uppercase; }
+        .uppercase-input::placeholder { text-transform: none; }
+        
+        .tab-btn.active { border-bottom: 2px solid #E61C24; color: #E61C24; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body class="text-gray-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
 
     <!-- Custom Alert Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-xl shadow-2xl p-5 md:p-6 w-full max-w-md transform transition-transform">
-            <h3 id="modal-title" class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-2"></h3>
-            <p id="modal-msg" class="text-sm md:text-base text-gray-600 mb-6 leading-relaxed"></p>
-            <button onclick="document.getElementById('custom-modal').classList.add('hidden')" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-bold py-3 px-4 rounded-lg transition shadow">Understood</button>
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-transform border-t-[6px] border-jambo-red">
+            <h3 id="modal-title" class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-3"></h3>
+            <p id="modal-msg" class="text-sm md:text-base text-gray-600 mb-8 leading-relaxed font-medium"></p>
+            <button onclick="document.getElementById('custom-modal').classList.add('hidden')" class="w-full bg-jambo-slate hover:bg-gray-800 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg text-lg">Acknowledge</button>
         </div>
     </div>
 
-    <!-- Toast Notification (for copy to clipboard) -->
+    <!-- Auth Modal (Login / Register / Forgot Password) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-transform relative my-8">
+            <button onclick="document.getElementById('auth-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-jambo-red"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-plane-up text-jambo-red text-4xl mb-3"></i>
+                <h3 id="auth-title" class="text-2xl font-extrabold text-jambo-slate">JM Rewards Login</h3>
+                <p id="auth-subtitle" class="text-sm text-gray-500 mt-1">Access your bookings and points.</p>
+            </div>
+
+            <!-- Login View -->
+            <form id="view-login" onsubmit="window.handleAuthAction(event, 'login')" class="auth-view block">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
+                    <input type="email" id="login-email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 flex justify-between">Password <span onclick="window.switchAuthView('forgot')" class="text-jambo-red cursor-pointer hover:underline normal-case">Forgot?</span></label>
+                    <input type="password" id="login-pass" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50">
+                </div>
+                <button type="submit" class="w-full bg-jambo-gold hover:bg-yellow-500 text-slate-900 font-extrabold py-4 rounded-xl transition shadow-lg text-lg flex items-center justify-center gap-2">Log In <i class="fa-solid fa-arrow-right"></i></button>
+                <p class="text-center mt-5 text-sm text-gray-600 font-medium">Don't have an account? <span onclick="window.switchAuthView('register')" class="text-jambo-red cursor-pointer hover:underline font-bold">Register here</span>.</p>
+            </form>
+
+            <!-- Register View -->
+            <form id="view-register" onsubmit="window.handleAuthAction(event, 'register')" class="auth-view hidden">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">First Name</label><input type="text" id="reg-fname" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input"></div>
+                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Last Name</label><input type="text" id="reg-lname" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Gender</label>
+                        <select id="reg-gender" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50">
+                            <option value="Male">Male</option><option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Date of Birth</label><input type="date" id="reg-dob" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
+                    <input type="email" id="reg-email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input">
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Create Password</label>
+                    <input type="password" id="reg-pass" required minlength="6" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50">
+                </div>
+                <button type="submit" class="w-full bg-jambo-slate hover:bg-gray-800 text-white font-extrabold py-4 rounded-xl transition shadow-lg text-lg flex items-center justify-center gap-2">Create Account</button>
+                <p class="text-center mt-5 text-sm text-gray-600 font-medium">Already a member? <span onclick="window.switchAuthView('login')" class="text-jambo-red cursor-pointer hover:underline font-bold">Log in</span>.</p>
+            </form>
+
+            <!-- Forgot Password View -->
+            <form id="view-forgot" onsubmit="window.handleAuthAction(event, 'forgot')" class="auth-view hidden">
+                <p class="text-sm text-gray-600 mb-4 font-medium text-center">Enter your email address and we'll send you a link to reset your password.</p>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
+                    <input type="email" id="forgot-email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input">
+                </div>
+                <button type="submit" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold py-4 rounded-xl transition shadow-lg text-lg">Send Reset Link</button>
+                <p class="text-center mt-5 text-sm text-gray-600 font-medium"><span onclick="window.switchAuthView('login')" class="text-jambo-slate cursor-pointer hover:underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Login</span></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast & Loaders -->
     <div id="toast-notification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-bold opacity-0 transition-opacity z-[110] pointer-events-none flex items-center gap-2">
         <i class="fa-solid fa-circle-check text-green-400"></i> Copied to clipboard!
     </div>
 
-    <!-- Global Processing Overlay -->
-    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-95 z-[90] hidden flex flex-col items-center justify-center backdrop-blur-sm">
-        <div class="loader mb-4"></div>
-        <h2 id="loader-text" class="text-xl md:text-2xl font-extrabold text-jambo-slate text-center px-4">Processing...</h2>
-        <p class="text-gray-500 mt-2 text-sm text-center font-medium">Please do not close or refresh this window.</p>
+    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-95 z-[90] hidden flex flex-col items-center justify-center backdrop-blur-md">
+        <div class="loader mb-5"></div>
+        <h2 id="loader-text" class="text-2xl font-extrabold text-jambo-slate text-center px-4 tracking-tight">Processing...</h2>
+        <div class="mt-4 flex items-center gap-2 text-xs text-green-600 font-bold bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
+            <i class="fa-solid fa-shield-halved"></i> 256-bit AES Encryption
+        </div>
     </div>
 
-    <!-- Top Promo Bar -->
-    <div class="bg-jambo-gold text-jambo-slate text-center py-2 px-2 md:px-4 text-xs md:text-sm font-bold relative overflow-hidden shadow-sm">
+    <div class="bg-jambo-gold text-jambo-slate text-center py-2 px-2 md:px-4 text-xs md:text-sm font-bold relative overflow-hidden shadow-sm z-50">
         <span class="animate-pulse inline-block"><i class="fa-solid fa-gift mr-1 md:mr-2"></i> 10 Years of Service! Smart Economy flights from KES 2,026 when booking 4+ days in advance!</span>
     </div>
 
-    <!-- Main Navigation -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="bg-white shadow-md sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 md:h-20 items-center">
                 <div class="flex items-center cursor-pointer" onclick="window.showPage('home')">
                     <span class="text-3xl md:text-4xl font-extrabold text-jambo-red tracking-tighter hover:text-jambo-darkred transition">jambojet<span class="text-sm md:text-lg font-normal align-top">&reg;</span></span>
                     <div class="hidden sm:flex ml-3 items-center bg-green-50 text-green-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full border border-green-200 shadow-sm">
-                        <i class="fa-solid fa-lock mr-1"></i> Verified Secure
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Verified Secure
                     </div>
                 </div>
                 
@@ -112,20 +178,17 @@
                     <a href="#" onclick="window.showPage('jaza')" class="hover:text-jambo-red transition">Jaza Pole Pole</a>
                     <a href="#" onclick="window.showPage('rewards')" class="hover:text-jambo-red transition">JM Rewards</a>
                     <a href="#" onclick="window.showPage('travel-info')" class="hover:text-jambo-red transition">Travel Info</a>
-                    <a href="#" onclick="window.showPage('checkin')" class="ml-2 bg-red-50 text-jambo-red px-4 py-2 rounded-lg hover:bg-jambo-red hover:text-white transition"><i class="fa-solid fa-suitcase-rolling mr-1"></i> Check-in / Manage</a>
+                    <a href="#" onclick="window.showPage('checkin')" class="ml-2 bg-red-50 text-jambo-red px-4 py-2.5 rounded-lg hover:bg-jambo-red hover:text-white transition"><i class="fa-solid fa-suitcase-rolling mr-1"></i> Check-in / Manage</a>
+                    <button id="nav-login-btn" onclick="window.handleNavLoginClick()" class="ml-2 bg-slate-800 text-white px-4 py-2.5 rounded-lg hover:bg-slate-900 transition flex items-center gap-2"><i class="fa-solid fa-user-circle"></i> Log In</button>
                 </div>
 
                 <div class="lg:hidden flex items-center gap-3">
-                    <div class="flex sm:hidden items-center bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full border border-green-200">
-                        <i class="fa-solid fa-lock"></i>
-                    </div>
-                    <button id="mobile-menu-btn" class="text-jambo-slate hover:text-jambo-red focus:outline-none p-2 bg-gray-50 rounded-lg">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
+                    <button onclick="window.handleNavLoginClick()" class="text-jambo-slate hover:text-jambo-red p-2"><i id="mobile-user-icon" class="fa-solid fa-user-circle text-xl"></i></button>
+                    <button id="mobile-menu-btn" class="text-jambo-slate hover:text-jambo-red focus:outline-none p-2 bg-gray-50 rounded-lg"><i class="fa-solid fa-bars text-xl"></i></button>
                 </div>
             </div>
         </div>
-        <!-- Mobile Menu -->
+        
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t absolute w-full shadow-2xl z-40 max-h-[80vh] overflow-y-auto">
             <a href="#" onclick="window.showPage('home'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-slate font-bold">Plan & Book</a>
             <a href="#" onclick="window.showPage('destinations'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-6 py-4 border-b border-gray-100 text-jambo-slate font-bold">Destinations</a>
@@ -137,11 +200,9 @@
         </div>
     </nav>
 
-    <!-- PAGE 1: HOME / SEARCH -->
     <div id="page-home" class="page-section page-active">
-        <!-- Hero Image -->
         <div class="relative bg-slate-900 h-[450px] md:h-[600px]">
-            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50" alt="Kenya" onerror="this.src='https://placehold.co/2000x600/2A3342/ffffff?text=Jambojet+Flight+Search'">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50" alt="Kenya">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
             <div class="absolute inset-0 flex flex-col justify-start md:justify-center items-center text-center px-4 pt-12 md:pt-0">
                 <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 md:mb-4 drop-shadow-2xl tracking-tight">Now You Can Fly.</h1>
@@ -149,7 +210,6 @@
             </div>
         </div>
 
-        <!-- Search Widget (Floating) -->
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-40 md:-mt-48 relative z-10 mb-12 md:mb-20">
             <div class="glass-panel rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden">
                 <div class="flex border-b border-gray-200 bg-white/50">
@@ -159,70 +219,60 @@
 
                 <div class="p-5 md:p-8 bg-white">
                     <form id="search-form" onsubmit="window.handleSearch(event)">
-                        <!-- Trip Type -->
                         <div class="flex gap-6 mb-5 md:mb-6 bg-gray-50 p-3 rounded-lg inline-flex">
                             <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold text-sm md:text-base">
-                                <input type="radio" name="tripType" value="oneway" checked onchange="window.toggleReturnDate(false)" class="w-4 h-4 md:w-5 md:h-5 text-jambo-red focus:ring-jambo-red"> One Way
+                                <input type="radio" name="tripType" value="oneway" checked onchange="window.toggleReturnDate(false)" class="w-4 h-4 text-jambo-red focus:ring-jambo-red"> One Way
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer text-jambo-slate font-bold text-sm md:text-base pl-4 border-l border-gray-300">
-                                <input type="radio" name="tripType" value="return" onchange="window.toggleReturnDate(true)" class="w-4 h-4 md:w-5 md:h-5 text-jambo-red focus:ring-jambo-red"> Return
+                                <input type="radio" name="tripType" value="return" onchange="window.toggleReturnDate(true)" class="w-4 h-4 text-jambo-red focus:ring-jambo-red"> Return
                             </label>
                         </div>
 
-                        <!-- Inputs -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
                             <div class="lg:col-span-1">
                                 <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">From</label>
-                                <select id="origin" required onchange="window.handleOriginChange(this.value)" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                <select id="origin" required onchange="window.handleOriginChange(this.value)" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
                                     <option value="" disabled selected>Select Origin</option>
-                                    <option value="Nairobi (NBO)">Nairobi (NBO)</option>
-                                    <option value="Mombasa (MBA)">Mombasa (MBA)</option>
-                                    <option value="Kisumu (KIS)">Kisumu (KIS)</option>
-                                    <option value="Eldoret (EDL)">Eldoret (EDL)</option>
-                                    <option value="Malindi (MYD)">Malindi (MYD)</option>
-                                    <option value="Diani (UKA)">Diani (UKA)</option>
-                                    <option value="Goma (GOM)">Goma (GOM)</option>
+                                    <option value="Nairobi (NBO)">Nairobi (NBO)</option><option value="Mombasa (MBA)">Mombasa (MBA)</option><option value="Kisumu (KIS)">Kisumu (KIS)</option>
+                                    <option value="Eldoret (EDL)">Eldoret (EDL)</option><option value="Malindi (MYD)">Malindi (MYD)</option><option value="Diani (UKA)">Diani (UKA)</option>
+                                    <option value="Lamu (LAU)">Lamu (LAU)</option><option value="Goma (GOM)">Goma (GOM)</option>
                                 </select>
                             </div>
                             
                             <div class="lg:col-span-1">
                                 <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">To</label>
-                                <select id="destination" required class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                <select id="destination" required class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
                                     <option value="" disabled selected>Select Destination</option>
-                                    <option value="Nairobi (NBO)">Nairobi (NBO)</option>
-                                    <option value="Mombasa (MBA)">Mombasa (MBA)</option>
-                                    <option value="Kisumu (KIS)">Kisumu (KIS)</option>
-                                    <option value="Eldoret (EDL)">Eldoret (EDL)</option>
-                                    <option value="Malindi (MYD)">Malindi (MYD)</option>
-                                    <option value="Diani (UKA)">Diani (UKA)</option>
-                                    <option value="Goma (GOM)">Goma (GOM)</option>
+                                    <option value="Nairobi (NBO)">Nairobi (NBO)</option><option value="Mombasa (MBA)">Mombasa (MBA)</option><option value="Kisumu (KIS)">Kisumu (KIS)</option>
+                                    <option value="Eldoret (EDL)">Eldoret (EDL)</option><option value="Malindi (MYD)">Malindi (MYD)</option><option value="Diani (UKA)">Diani (UKA)</option>
+                                    <option value="Lamu (LAU)">Lamu (LAU)</option><option value="Goma (GOM)">Goma (GOM)</option>
                                 </select>
                             </div>
 
                             <div class="lg:col-span-1">
                                 <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">Depart</label>
-                                <input type="date" id="depart" required class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                <input type="date" id="depart" required class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm uppercase-input">
                             </div>
 
                             <div class="lg:col-span-1 opacity-40 pointer-events-none transition-all duration-300" id="return-container">
                                 <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">Return</label>
-                                <input type="date" id="return" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                <input type="date" id="return" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none font-bold text-jambo-slate text-sm md:text-base shadow-sm uppercase-input">
                             </div>
 
                             <div class="lg:col-span-1 flex items-end gap-3">
                                 <div class="w-1/2">
                                     <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">Adults</label>
-                                    <input type="number" id="adults" min="1" max="9" value="1" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                    <input type="number" id="adults" min="1" max="9" value="1" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base shadow-sm">
                                 </div>
                                 <div class="w-1/2">
-                                    <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">Child (2-11)</label>
-                                    <input type="number" id="children" min="0" max="9" value="0" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base shadow-sm">
+                                    <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider">Child</label>
+                                    <input type="number" id="children" min="0" max="9" value="0" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-jambo-red outline-none text-center font-bold text-jambo-slate text-sm md:text-base shadow-sm">
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-6 md:mt-8">
-                            <button type="submit" class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg md:text-xl rounded-lg shadow-[0_8px_20px_rgba(230,28,36,0.3)] hover:shadow-[0_8px_25px_rgba(230,28,36,0.5)] transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5">
+                            <button type="submit" class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg md:text-xl rounded-xl shadow-[0_8px_20px_rgba(230,28,36,0.3)] hover:shadow-[0_8px_25px_rgba(230,28,36,0.5)] transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5">
                                 <i class="fa-solid fa-magnifying-glass"></i> Find Flights
                             </button>
                         </div>
@@ -231,19 +281,18 @@
             </div>
         </div>
         
-        <!-- Info Cards -->
         <div class="max-w-7xl mx-auto px-4 mb-12 md:mb-20 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <div onclick="window.showPage('offers')" class="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-shadow duration-300 cursor-pointer overflow-hidden border border-gray-100 group flex flex-col h-full">
                 <div class="h-48 overflow-hidden relative">
                     <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="Promo">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-90"></div>
                     <div class="absolute bottom-4 left-4">
-                        <span class="bg-jambo-gold text-jambo-slate text-[10px] font-extrabold px-2 py-1 rounded mb-2 inline-block shadow">10 YEAR ANNIVERSARY</span>
+                        <span class="bg-jambo-gold text-jambo-slate text-[10px] font-extrabold px-2 py-1 rounded mb-2 inline-block shadow uppercase">10 Year Anniversary</span>
                         <h3 class="text-white text-xl font-extrabold">KES 2,026 Fares</h3>
                     </div>
                 </div>
                 <div class="p-5 flex-1 flex flex-col justify-between">
-                    <p class="text-gray-600 text-sm leading-relaxed">Celebrate a decade of flying! Book >4 days in advance this month for exclusive Smart Economy fares.</p>
+                    <p class="text-gray-600 text-sm leading-relaxed font-medium">Celebrate a decade of flying! Book >4 days in advance this month for exclusive Smart Economy fares.</p>
                     <span class="text-jambo-red font-bold text-sm mt-4 flex items-center">View Offer <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                 </div>
             </div>
@@ -251,11 +300,11 @@
             <div onclick="window.showPage('jaza')" class="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-shadow duration-300 cursor-pointer overflow-hidden border border-gray-100 group flex flex-col h-full">
                 <div class="h-48 bg-slate-800 relative flex flex-col justify-center items-center text-white overflow-hidden group-hover:bg-slate-900 transition-colors">
                     <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                    <i class="fa-solid fa-money-bill-transfer text-5xl mb-3 text-jambo-red relative z-10 transform group-hover:scale-110 transition-transform duration-500"></i>
+                    <i class="fa-solid fa-wallet text-5xl mb-3 text-jambo-red relative z-10 transform group-hover:scale-110 transition-transform duration-500"></i>
                     <h3 class="text-xl font-extrabold relative z-10">Jaza Pole Pole</h3>
                 </div>
                 <div class="p-5 flex-1 flex flex-col justify-between">
-                    <p class="text-gray-600 text-sm leading-relaxed">Secure your flight today with a minimal deposit and pay the rest in flexible installments. Travel made easy.</p>
+                    <p class="text-gray-600 text-sm leading-relaxed font-medium">Secure your flight today with a minimal deposit and pay the rest in flexible installments. Travel made easy.</p>
                     <span class="text-jambo-red font-bold text-sm mt-4 flex items-center">Learn More <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                 </div>
             </div>
@@ -267,14 +316,13 @@
                     <div class="absolute bottom-4 left-4"><h3 class="text-white text-xl font-extrabold">JM Rewards</h3></div>
                 </div>
                 <div class="p-5 flex-1 flex flex-col justify-between">
-                    <p class="text-gray-600 text-sm leading-relaxed">Earn points every time you fly. Redeem for free flights, extra baggage, and priority boarding.</p>
+                    <p class="text-gray-600 text-sm leading-relaxed font-medium">Earn points every time you fly. Redeem for free flights, extra baggage, and priority boarding.</p>
                     <span class="text-jambo-red font-bold text-sm mt-4 flex items-center">Join Today <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 2: FLIGHT RESULTS -->
     <div id="page-results" class="page-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
             <div>
@@ -284,13 +332,12 @@
             </div>
             <div class="hidden md:flex flex-col text-right">
                 <p class="text-xs font-bold text-gray-400 uppercase">Passengers</p>
-                <p class="text-xl font-extrabold text-jambo-slate"><i class="fa-solid fa-users text-jambo-red mr-2"></i><span id="header-pax-count">1</span></p>
+                <p class="text-xl font-extrabold text-jambo-slate"><i class="fa-solid fa-users text-jambo-red mr-2"></i> <span id="header-pax-count">1</span></p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             <div class="lg:col-span-2 space-y-8 md:space-y-10">
-                <!-- Outbound Section -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <h3 class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-6 pb-3 border-b-2 border-gray-100 flex items-center gap-3">
                         <span class="bg-jambo-slate text-white w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-inner"><i class="fa-solid fa-plane-departure"></i></span> 
@@ -299,7 +346,6 @@
                     <div id="outbound-flights" class="space-y-4 md:space-y-6"></div>
                 </div>
                 
-                <!-- Return Section (Hidden by default) -->
                 <div id="return-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <h3 class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-6 pb-3 border-b-2 border-gray-100 flex items-center gap-3">
                         <span class="bg-jambo-slate text-white w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-inner transform rotate-180"><i class="fa-solid fa-plane-departure"></i></span> 
@@ -309,7 +355,6 @@
                 </div>
             </div>
 
-            <!-- Sticky Summary Bar for Results -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-gray-100 p-5 md:p-6 sticky top-24">
                     <h3 class="font-extrabold text-xl text-jambo-slate mb-4">Your Selection</h3>
@@ -343,7 +388,6 @@
         </div>
     </div>
 
-    <!-- PAGE 3: CHECKOUT (PASSENGERS, SEATS & BAGGAGE) -->
     <div id="page-checkout" class="page-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <button onclick="window.showPage('results')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-4 md:mb-6 flex items-center text-sm md:text-base bg-red-50 px-3 py-1.5 rounded-lg w-max transition"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Flights</button>
 
@@ -352,7 +396,6 @@
                 <h2 class="text-2xl md:text-3xl font-extrabold text-jambo-slate mb-6">Passenger Details</h2>
                 
                 <form id="passenger-form" onsubmit="window.proceedToPayment(event)">
-                    <!-- Primary Adult Block -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                         <div class="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
                             <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm text-jambo-red"><i class="fa-solid fa-user"></i></div>
@@ -361,36 +404,34 @@
                         <div class="p-5 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
                             <div class="md:col-span-1">
                                 <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Title *</label>
-                                <select id="title" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium">
+                                <select id="title" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium">
                                     <option value="Mr">Mr</option><option value="Mrs">Mrs</option><option value="Miss">Miss</option><option value="Ms">Ms</option><option value="Dr">Dr</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">First Name *</label><input type="text" id="fname" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Last Name *</label><input type="text" id="lname" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">First Name *</label><input type="text" id="fname" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Last Name *</label><input type="text" id="lname" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
                             
                             <div class="md:col-span-1">
                                 <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Nationality *</label>
-                                <select id="nationality" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium">
+                                <select id="nationality" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input">
                                     <option value="Kenya" selected>Kenya</option><option value="Uganda">Uganda</option><option value="Tanzania">Tanzania</option><option value="Rwanda">Rwanda</option><option value="United Kingdom">United Kingdom</option><option value="United States">United States</option><option value="Other">Other</option>
                                 </select>
                             </div>
                             
                             <div class="md:col-span-1">
                                 <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Document Type *</label>
-                                <select id="docType" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium">
+                                <select id="docType" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input">
                                     <option value="National ID" selected>National ID</option><option value="Passport">Passport</option><option value="Alien Card">Alien Card</option><option value="Military ID">Military ID</option>
                                 </select>
                             </div>
 
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Document Number *</label><input type="text" id="idpass" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none uppercase bg-gray-50 focus:bg-white transition text-sm md:text-base font-bold"></div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Date of Birth *</label><input type="date" id="dob" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Document Number *</label><input type="text" id="idpass" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-bold uppercase-input"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Date of Birth *</label><input type="date" id="dob" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
                         </div>
                     </div>
 
-                    <!-- Dynamic Child Container -->
                     <div id="child-container" class="space-y-6 mb-6"></div>
 
-                    <!-- Contact Details -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                         <div class="bg-gray-50 border-b border-gray-200 p-4 flex justify-between items-center">
                             <div class="flex items-center gap-3">
@@ -399,18 +440,25 @@
                             </div>
                             <label class="flex items-center gap-2 cursor-pointer text-xs md:text-sm font-bold text-gray-600 bg-white px-3 py-1.5 rounded-lg border shadow-sm hover:bg-gray-50 transition">
                                 <input type="checkbox" id="same-as-pax" onchange="window.autofillContact()" class="w-4 h-4 text-jambo-red focus:ring-jambo-red border-gray-300 rounded">
-                                Autofill from Primary
+                                Autofill Primary Name
                             </label>
                         </div>
                         <div class="p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Email Address *</label><input type="email" id="email" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-blue-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Confirm Email *</label><input type="email" id="confirm-email" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-blue-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Phone Number *</label><input type="tel" id="phone" placeholder="+254 700 000000" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
-                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">City / Address</label><input type="text" id="address" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Email Address *</label><input type="email" id="email" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-blue-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Confirm Email *</label><input type="email" id="confirm-email" required onpaste="return false;" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-blue-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
+                            <div class="md:col-span-1">
+                                <label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Phone Number *</label>
+                                <div class="flex">
+                                    <select id="phone-cc" class="w-1/3 px-2 py-2.5 md:py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 font-medium text-sm md:text-base outline-none focus:border-jambo-red">
+                                        <option value="+254">+254 (KE)</option><option value="+256">+256 (UG)</option><option value="+255">+255 (TZ)</option><option value="+250">+250 (RW)</option><option value="+44">+44 (UK)</option><option value="+1">+1 (US)</option>
+                                    </select>
+                                    <input type="tel" id="phone" required placeholder="700 000000" class="w-2/3 px-3 py-2.5 md:py-3 border border-gray-300 rounded-r-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input">
+                                </div>
+                            </div>
+                            <div class="md:col-span-1"><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">City / Address</label><input type="text" id="address" required class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none bg-gray-50 focus:bg-white transition text-sm md:text-base font-medium uppercase-input"></div>
                         </div>
                     </div>
 
-                    <!-- Seat Selection -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                         <div class="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
                             <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm text-jambo-slate"><i class="fa-solid fa-chair"></i></div>
@@ -418,8 +466,8 @@
                         </div>
                         <div class="p-5 md:p-6 flex flex-col md:flex-row gap-6 items-center justify-between">
                             <div class="flex-1 w-full">
-                                <p class="text-xs md:text-sm text-gray-600 mb-3 leading-relaxed">Select your preferred seating. Standard seats are automatically assigned free of charge during check-in.</p>
-                                <select id="seat-pref" onchange="window.updateSeatCost(this.value)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none text-sm md:text-base font-bold bg-white shadow-sm">
+                                <p class="text-xs md:text-sm text-gray-600 mb-3 leading-relaxed font-medium">Select your preferred seating. Standard seats are automatically assigned free of charge during check-in.</p>
+                                <select id="seat-pref" onchange="window.updateSeatCost(this.value)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-jambo-red outline-none text-sm md:text-base font-bold bg-white shadow-sm uppercase-input">
                                     <option value="0">Random Assignment (Free)</option>
                                     <option value="0">Window Seat (Free)</option>
                                     <option value="0">Aisle Seat (Free)</option>
@@ -428,12 +476,11 @@
                             </div>
                             <div class="hidden md:flex w-40 h-24 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-100 border border-gray-200 rounded-xl items-center justify-center shadow-inner relative overflow-hidden">
                                 <i class="fa-solid fa-plane text-4xl text-gray-300 transform -rotate-45 absolute -right-2 -bottom-2"></i>
-                                <span class="text-xs font-bold text-gray-500 z-10 bg-white/80 px-2 py-1 rounded">Dash 8-Q400</span>
+                                <span class="text-xs font-bold text-gray-500 z-10 bg-white/80 px-2 py-1 rounded shadow-sm">Dash 8-Q400</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Baggage Section -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                         <div class="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
                             <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm text-jambo-slate"><i class="fa-solid fa-suitcase-rolling"></i></div>
@@ -466,7 +513,6 @@
                         </div>
                     </div>
 
-                    <!-- Prohibited Items & Guidelines -->
                     <div class="bg-red-50 rounded-2xl p-5 md:p-6 border border-red-200 mb-6 flex gap-4 items-start shadow-sm">
                         <div class="bg-white p-2 rounded-full shadow-sm mt-1 shrink-0"><i class="fa-solid fa-triangle-exclamation text-jambo-red text-xl md:text-2xl"></i></div>
                         <div class="flex-1">
@@ -481,7 +527,6 @@
                         </div>
                     </div>
 
-                    <!-- Terms and Conditions Checkbox -->
                     <div class="mb-8 p-5 border-2 rounded-2xl bg-gray-50 border-gray-200 hover:border-gray-300 transition-colors">
                         <label class="flex items-start gap-4 cursor-pointer group">
                             <input type="checkbox" id="tc-agree" required onchange="window.toggleCheckoutBtn(this.checked)" class="mt-1 w-5 h-5 md:w-6 md:h-6 text-jambo-red focus:ring-jambo-red border-gray-400 rounded shadow-inner shrink-0 cursor-pointer">
@@ -497,13 +542,10 @@
                 </form>
             </div>
             
-            <div class="lg:col-span-1" id="checkout-summary-sidebar">
-                <!-- Injected via JS -->
-            </div>
+            <div class="lg:col-span-1" id="checkout-summary-sidebar"></div>
         </div>
     </div>
 
-    <!-- PAGE 4: PAYMENT -->
     <div id="page-payment" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <button onclick="window.showPage('checkout')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-4 md:mb-6 flex items-center text-sm md:text-base bg-red-50 px-3 py-1.5 rounded-lg w-max transition"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Details</button>
         
@@ -512,7 +554,6 @@
                 <h2 class="text-2xl md:text-3xl font-extrabold text-jambo-slate mb-6">Payment</h2>
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     
-                    <!-- Tabs -->
                     <div class="flex border-b border-gray-200 bg-gray-50">
                         <button id="tab-mpesa" onclick="window.switchPayment('mpesa')" class="flex-1 py-4 px-2 text-sm md:text-base font-extrabold text-green-700 bg-white border-t-4 border-green-600 shadow-[0_4px_0_0_white] z-10"><i class="fa-solid fa-mobile-screen mr-2"></i> M-PESA</button>
                         <button id="tab-card" onclick="window.switchPayment('card')" class="flex-1 py-4 px-2 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-t-4 border-transparent bg-gray-50 transition-colors"><i class="fa-regular fa-credit-card mr-2"></i> Credit/Debit Card</button>
@@ -529,14 +570,13 @@
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-2">M-PESA Phone Number</label>
                             <div class="flex items-center border-2 border-green-500 rounded-xl overflow-hidden mb-8 bg-white focus-within:ring-4 focus-within:ring-green-100 transition-shadow">
                                 <span class="px-4 font-bold text-green-800 bg-green-50 border-r border-green-200 py-3 md:py-4">+254</span>
-                                <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 md:py-4 outline-none bg-transparent font-bold text-gray-800 text-lg md:text-xl tracking-wide">
+                                <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 md:py-4 outline-none bg-transparent font-bold text-gray-800 text-lg md:text-xl tracking-wide uppercase-input">
                             </div>
                             
                             <button type="button" onclick="window.processMpesaPush()" class="w-full py-4 md:py-5 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg md:text-xl rounded-xl shadow-[0_8px_20px_rgba(22,163,74,0.3)] transition-all flex justify-center items-center gap-3 transform hover:-translate-y-0.5">
                                 <i class="fa-solid fa-lock"></i> Pay KES <span class="pay-amount-display"></span>
                             </button>
                             
-                            <!-- Hidden Paybill Instructions (Revealed if push fails) -->
                             <div id="mpesa-paybill-instructions" class="hidden mt-8 bg-red-50 border border-red-200 rounded-xl p-5 md:p-6 shadow-inner relative overflow-hidden">
                                 <div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
                                 <h4 class="font-extrabold text-red-700 mb-3 text-base md:text-lg flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-xl"></i> STK Push Timed Out</h4>
@@ -575,7 +615,7 @@
                         <div id="view-card" class="hidden">
                             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
                                 <i class="fa-solid fa-shield-halved text-blue-600 mt-0.5 text-lg"></i>
-                                <p class="text-xs md:text-sm text-blue-900 font-medium leading-relaxed">Your card details are securely processed via 256-bit encryption.</p>
+                                <p class="text-xs md:text-sm text-blue-900 font-medium leading-relaxed">Your card details are securely processed via 256-bit AES encryption.</p>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4 md:gap-5 mb-8">
@@ -583,16 +623,16 @@
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Card Number</label>
                                     <div class="relative">
                                         <i class="fa-brands fa-cc-visa absolute right-4 top-3.5 md:top-4 text-gray-300 text-2xl"></i>
-                                        <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none font-bold tracking-widest text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition">
+                                        <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 outline-none font-bold tracking-widest text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition uppercase-input">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Expiry Date</label>
-                                    <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none font-bold text-center text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition">
+                                    <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 outline-none font-bold text-center text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition uppercase-input">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">CVV</label>
-                                    <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="•••" maxlength="4" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none font-bold text-center tracking-widest text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition">
+                                    <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="•••" maxlength="4" class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 outline-none font-bold text-center tracking-widest text-gray-800 text-base md:text-lg bg-gray-50 focus:bg-white transition">
                                 </div>
                             </div>
                             <button type="button" onclick="window.processCardPayment()" class="w-full py-4 md:py-5 bg-jambo-slate hover:bg-slate-900 text-white font-extrabold text-lg md:text-xl rounded-xl shadow-[0_8px_20px_rgba(42,51,66,0.3)] transition-all flex justify-center items-center gap-3 transform hover:-translate-y-0.5">
@@ -602,13 +642,10 @@
                     </div>
                 </div>
             </div>
-            <div id="payment-summary-sidebar">
-                <!-- Injected via JS -->
-            </div>
+            <div id="payment-summary-sidebar"></div>
         </div>
     </div>
 
-    <!-- PAGE 5: CONFIRMATION -->
     <div id="page-confirmation" class="page-section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 text-center">
         <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl border-t-[12px] border-green-500 relative overflow-hidden">
             <div class="absolute -right-10 -top-10 text-green-50 opacity-50"><i class="fa-solid fa-circle-check text-[200px]"></i></div>
@@ -618,7 +655,7 @@
                     <i class="fa-solid fa-check text-4xl md:text-5xl text-green-500"></i>
                 </div>
                 <h1 class="text-3xl md:text-5xl font-extrabold text-jambo-slate mb-3 tracking-tight">Booking Confirmed!</h1>
-                <p class="text-gray-600 mb-8 md:mb-10 text-base md:text-xl max-w-2xl mx-auto leading-relaxed">Thank you for flying Jambojet. Your e-ticket and itinerary have been successfully sent to your email.</p>
+                <p class="text-gray-600 mb-8 md:mb-10 text-base md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">Thank you for flying Jambojet. Your e-ticket and itinerary have been successfully sent to your email.</p>
                 
                 <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 md:p-8 inline-block mb-10 shadow-sm min-w-[250px] md:min-w-[350px]">
                     <p class="text-[10px] md:text-sm uppercase font-bold text-gray-500 mb-2 tracking-widest">Your Booking Reference (PNR)</p>
@@ -633,11 +670,15 @@
         </div>
     </div>
 
-    <!-- PAGE 6: WEB CHECK-IN / MY TRIPS -->
     <div id="page-checkin" class="page-section max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div class="text-center mb-8 md:mb-12">
             <h2 class="text-3xl md:text-4xl font-extrabold text-jambo-slate mb-3 tracking-tight">Web Check-in & My Trips</h2>
-            <p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">Retrieve your booking to view details, check-in online 48 hours prior to departure, or download your PDF e-ticket.</p>
+            <p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto font-medium">Retrieve your booking to view details, check-in online 48 hours prior to departure, or download your PDF e-ticket.</p>
+        </div>
+
+        <div id="checkin-guest-prompt" class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8 text-center hidden">
+            <p class="text-blue-900 font-medium mb-3">Want to see all your bookings at a glance?</p>
+            <button onclick="window.handleNavLoginClick()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-blue-700 transition">Log In to My Account</button>
         </div>
 
         <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-10 mb-8 md:mb-12 relative overflow-hidden">
@@ -646,11 +687,11 @@
             <form onsubmit="window.lookupBooking(event)" class="relative z-10 grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-6 items-end">
                 <div class="md:col-span-3">
                     <label class="block text-xs md:text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Booking Ref (PNR)</label>
-                    <input type="text" id="lookup-ref" required placeholder="e.g. A1B2C3" class="w-full px-4 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-red-100 focus:border-jambo-red outline-none uppercase font-extrabold text-jambo-slate text-lg tracking-widest bg-gray-50 focus:bg-white transition">
+                    <input type="text" id="lookup-ref" required placeholder="e.g. JM-A1B2C3" class="w-full px-4 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-extrabold text-jambo-slate text-lg tracking-widest bg-gray-50 focus:bg-white transition uppercase-input">
                 </div>
                 <div class="md:col-span-3">
                     <label class="block text-xs md:text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Last Name</label>
-                    <input type="text" id="lookup-lname" required placeholder="Passenger Last Name" class="w-full px-4 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-red-100 focus:border-jambo-red outline-none text-base md:text-lg font-bold text-gray-800 bg-gray-50 focus:bg-white transition">
+                    <input type="text" id="lookup-lname" required placeholder="Passenger Last Name" class="w-full px-4 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none text-base md:text-lg font-bold text-gray-800 bg-gray-50 focus:bg-white transition uppercase-input">
                 </div>
                 <div class="md:col-span-1 mt-4 md:mt-0">
                     <button type="submit" class="w-full h-full min-h-[56px] bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold rounded-xl shadow-lg transition flex justify-center items-center text-xl hover:shadow-xl transform hover:-translate-y-0.5"><i class="fa-solid fa-search"></i></button>
@@ -658,45 +699,149 @@
             </form>
         </div>
 
-        <!-- The PDF Container wrapper, styled strictly for html2pdf rendering -->
-        <div id="booking-result" class="hidden">
-            <!-- Boarding pass rendering here via JS -->
+        <div id="booking-result" class="hidden"></div>
+    </div>
+
+    <div id="page-account" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-slate-900 p-6 text-center text-white">
+                        <div class="w-16 h-16 bg-jambo-red rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3 shadow-lg" id="acc-avatar"></div>
+                        <h3 class="font-extrabold text-lg" id="acc-name">User Name</h3>
+                        <p class="text-xs text-gray-400 mt-1" id="acc-email">user@email.com</p>
+                    </div>
+                    <div class="p-2">
+                        <button onclick="window.switchAccTab('profile')" id="btn-tab-profile" class="tab-btn active w-full text-left px-4 py-3 font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fa-solid fa-user-pen mr-2 w-5"></i> My Profile</button>
+                        <button onclick="window.switchAccTab('trips')" id="btn-tab-trips" class="tab-btn w-full text-left px-4 py-3 font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fa-solid fa-plane-departure mr-2 w-5"></i> My Trips</button>
+                        <button onclick="window.switchAccTab('rewards')" id="btn-tab-rewards" class="tab-btn w-full text-left px-4 py-3 font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fa-solid fa-award mr-2 w-5"></i> JM Rewards</button>
+                        <hr class="my-2 border-gray-100">
+                        <button onclick="window.handleLogout()" class="w-full text-left px-4 py-3 font-bold text-red-600 hover:bg-red-50 rounded-lg transition"><i class="fa-solid fa-right-from-bracket mr-2 w-5"></i> Log Out</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="w-full md:w-3/4">
+                <!-- Profile Tab -->
+                <div id="tab-profile" class="tab-content active bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+                    <h2 class="text-2xl font-extrabold text-jambo-slate mb-6 pb-4 border-b border-gray-100">Profile Details</h2>
+                    <p class="text-sm text-gray-500 mb-6 font-medium">Keep your details up to date for faster booking checkout.</p>
+                    <form onsubmit="window.updateProfile(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">First Name</label><input type="text" id="prof-fname" disabled class="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 font-bold uppercase-input"></div>
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Last Name</label><input type="text" id="prof-lname" disabled class="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 font-bold uppercase-input"></div>
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Date of Birth</label><input type="date" id="prof-dob" disabled class="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 font-bold uppercase-input"></div>
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Gender</label><input type="text" id="prof-gender" disabled class="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 font-bold uppercase-input"></div>
+                        </div>
+                        <h3 class="font-bold text-jambo-slate mb-4 mt-8">Travel & Contact Info</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Nationality</label>
+                                <select id="prof-nat" class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium uppercase-input">
+                                    <option value="Kenya">Kenya</option><option value="Uganda">Uganda</option><option value="Tanzania">Tanzania</option><option value="Rwanda">Rwanda</option><option value="United Kingdom">United Kingdom</option><option value="United States">United States</option><option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Document Type</label>
+                                <select id="prof-doctype" class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium uppercase-input">
+                                    <option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Alien Card">Alien Card</option><option value="Military ID">Military ID</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Document Number</label><input type="text" id="prof-docnum" class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium uppercase-input"></div>
+                            <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Phone Number</label><input type="text" id="prof-phone" placeholder="e.g. +254 700 000000" class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium uppercase-input"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">City / Address</label><input type="text" id="prof-address" class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium uppercase-input"></div>
+                        </div>
+                        <button type="submit" class="bg-jambo-red hover:bg-jambo-darkred text-white font-bold py-3 px-8 rounded-xl transition shadow">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Trips Tab -->
+                <div id="tab-trips" class="tab-content bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+                    <h2 class="text-2xl font-extrabold text-jambo-slate mb-6 pb-4 border-b border-gray-100">My Trips</h2>
+                    <div id="acc-trips-list" class="space-y-4">
+                        <div class="text-center py-10"><div class="loader mx-auto mb-4 border-gray-300 border-t-jambo-red"></div><p class="text-gray-500 font-medium">Loading trips...</p></div>
+                    </div>
+                </div>
+
+                <!-- Rewards Tab -->
+                <div id="tab-rewards" class="tab-content bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-6 md:p-10 text-white relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10"><i class="fa-solid fa-crown text-[200px] text-jambo-gold"></i></div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-extrabold text-white mb-2">JM Rewards Dashboard</h2>
+                        <p class="text-slate-400 text-sm mb-8">Earn 10 points for every 100 KES spent on flights.</p>
+                        
+                        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 inline-block mb-8">
+                            <p class="text-xs uppercase font-bold text-slate-400 tracking-widest mb-1">Total Points Balance</p>
+                            <p class="text-5xl font-extrabold text-jambo-gold" id="acc-points">0</p>
+                        </div>
+                        
+                        <h3 class="font-bold text-lg mb-4 border-b border-slate-700 pb-2">Current Tier Benefits (Ruby)</h3>
+                        <ul class="space-y-3 text-sm text-slate-300 font-medium">
+                            <li><i class="fa-solid fa-check text-green-400 mr-2"></i> Standard Points Earning (1x)</li>
+                            <li><i class="fa-solid fa-check text-green-400 mr-2"></i> Member-only promotional emails</li>
+                            <li class="opacity-50"><i class="fa-solid fa-lock text-slate-500 mr-2"></i> Priority Check-in (Unlock at Silver)</li>
+                            <li class="opacity-50"><i class="fa-solid fa-lock text-slate-500 mr-2"></i> Extra 5kg Cabin Bag (Unlock at Gold)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- STATIC PAGES -->
     <div id="page-destinations" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
         <span class="text-jambo-red font-extrabold tracking-widest text-sm uppercase mb-2 block">Network Map</span>
         <h1 class="text-4xl md:text-6xl font-extrabold text-jambo-slate tracking-tight">Our Destinations</h1>
-        <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Explore our extensive network across Kenya and East Africa. Daily flights connecting you to business, leisure, and home.</p>
+        <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium">Explore our extensive network across Kenya and East Africa. Daily flights connecting you to business, leisure, and home.</p>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12 md:mt-16">
-            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group cursor-pointer border border-gray-100">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12 md:mt-16 text-left">
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
                 <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6 text-left">
-                    <span class="text-jambo-gold font-bold text-xs mb-1">HUB</span>
-                    <h3 class="text-white text-3xl font-extrabold">Nairobi</h3>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
+                    <span class="text-jambo-gold font-bold text-xs mb-1">MAIN HUB</span>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Nairobi (NBO)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Up to 15 flights daily connecting the capital.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group cursor-pointer border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
                 <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6 text-left">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
                     <span class="text-jambo-gold font-bold text-xs mb-1">COASTAL</span>
-                    <h3 class="text-white text-3xl font-extrabold">Mombasa</h3>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Mombasa (MBA)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Frequent hourly shuttles to the coast.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group cursor-pointer border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
                 <img src="https://images.unsplash.com/photo-1623831846435-0fcb21bdab72?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6 text-left">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
                     <span class="text-jambo-gold font-bold text-xs mb-1">LAKESIDE</span>
-                    <h3 class="text-white text-3xl font-extrabold">Kisumu</h3>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Kisumu (KIS)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Multiple daily flights to the lakeside city.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group cursor-pointer border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
                 <img src="https://images.unsplash.com/photo-1560067425-eb45231c5ab4?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6 text-left">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
                     <span class="text-jambo-gold font-bold text-xs mb-1">BEACH</span>
-                    <h3 class="text-white text-3xl font-extrabold">Diani</h3>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Diani (UKA)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Direct flights to pristine white sands.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
+                <img src="https://images.unsplash.com/photo-1548684947-f4e9185a8581?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
+                    <span class="text-jambo-gold font-bold text-xs mb-1">ISLAND</span>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Lamu (LAU)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Discover heritage and culture effortlessly.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden relative group border border-gray-100">
+                <img src="https://images.unsplash.com/photo-1518182170546-076616fd61fd?w=500&auto=format&fit=crop" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
+                    <span class="text-jambo-gold font-bold text-xs mb-1">REGIONAL</span>
+                    <h3 class="text-white text-3xl font-extrabold mb-2">Goma (GOM)</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">Expanding connectivity into the DRC.</p>
                 </div>
             </div>
         </div>
@@ -708,14 +853,14 @@
         <div class="bg-jambo-gold text-jambo-slate inline-block px-6 py-2 rounded-full font-extrabold mt-6 mb-8 text-sm md:text-base shadow-sm">10 YEARS OF FLYING</div>
         <p class="text-lg md:text-2xl text-gray-600 max-w-4xl mx-auto mb-12 leading-relaxed">To celebrate a decade in the skies, we are offering exclusive Smart Economy fares starting at just <strong class="text-jambo-red text-3xl">KES 2,026</strong>. Valid for flights booked 4+ days in advance for travel this month only!</p>
         
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto flex flex-col md:flex-row text-left border border-gray-100">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto flex flex-col md:flex-row text-left border border-gray-100 mb-12">
             <div class="md:w-1/2 relative">
                 <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=800&auto=format&fit=crop" class="w-full h-full object-cover min-h-[300px]">
                 <div class="absolute top-4 left-4 bg-jambo-red text-white px-4 py-2 rounded-lg font-bold shadow-lg">LIMITED TIME</div>
             </div>
             <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-gray-50">
                 <h3 class="text-3xl md:text-4xl font-extrabold text-jambo-slate mb-4 tracking-tight">The Anniversary Sale</h3>
-                <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">Enjoy our award-winning low-cost service across the network. Includes a free 10kg cabin bag. Seats are highly limited and subject to availability.</p>
+                <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed font-medium">Enjoy our award-winning low-cost service across the network. Includes a free 10kg cabin bag. Seats are highly limited and subject to availability.</p>
                 <div class="space-y-4 mb-10 bg-white p-6 rounded-xl border border-gray-200">
                     <p class="flex items-center text-sm font-bold text-gray-700"><i class="fa-solid fa-circle-check text-green-500 mr-3 text-lg"></i> Book >4 Days in advance</p>
                     <p class="flex items-center text-sm font-bold text-gray-700"><i class="fa-solid fa-circle-check text-green-500 mr-3 text-lg"></i> Valid for current month travel</p>
@@ -724,43 +869,95 @@
                 <button onclick="window.showPage('home')" class="w-full py-5 bg-jambo-slate text-white font-extrabold rounded-xl shadow-lg hover:bg-gray-800 transition text-lg">Search Promo Flights</button>
             </div>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-5xl mx-auto">
+            <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm flex gap-4 items-start hover:shadow-md transition">
+                <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-2xl"><i class="fa-solid fa-bed"></i></div>
+                <div>
+                    <h4 class="font-extrabold text-lg text-jambo-slate mb-1">Partner Hotel Discounts</h4>
+                    <p class="text-sm text-gray-600 font-medium">Show your Jambojet boarding pass at selected coastal hotels for up to 15% off your stay.</p>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm flex gap-4 items-start hover:shadow-md transition">
+                <div class="bg-green-50 p-4 rounded-xl text-green-600 text-2xl"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <h4 class="font-extrabold text-lg text-jambo-slate mb-1">Group Booking Savings</h4>
+                    <p class="text-sm text-gray-600 font-medium">Traveling with 10 or more people? Contact our group desk for specialized rates and flexible payment terms.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="page-jaza" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-jambo-slate tracking-tight">Jaza Pole Pole</h1>
-            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Lock in your fare today and pay the rest later. Flexible travel on your terms.</p>
+    <div id="page-jaza" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-jambo-slate tracking-tight mb-4">Jaza Pole Pole</h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12 font-medium">Lock in your fare today and pay the rest later. Flexible travel on your terms.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 relative">
+            <div class="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-1 bg-red-100 -z-10 transform -translate-y-1/2"></div>
+            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center z-10 relative">
+                <div class="w-16 h-16 bg-jambo-red text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-lg border-4 border-white font-extrabold">1</div>
+                <h3 class="text-xl font-bold mb-3 text-jambo-slate">Lock the Fare</h3>
+                <p class="text-gray-600 text-sm font-medium">Pay a small deposit of just KES 3,000 to secure your seat and lock in current low prices.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center z-10 relative">
+                <div class="w-16 h-16 bg-jambo-red text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-lg border-4 border-white font-extrabold">2</div>
+                <h3 class="text-xl font-bold mb-3 text-jambo-slate">Pay in Installments</h3>
+                <p class="text-gray-600 text-sm font-medium">Pay the remaining balance in flexible installments up to 14 days before your departure date.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center z-10 relative">
+                <div class="w-16 h-16 bg-jambo-red text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-lg border-4 border-white font-extrabold">3</div>
+                <h3 class="text-xl font-bold mb-3 text-jambo-slate">Fly</h3>
+                <p class="text-gray-600 text-sm font-medium">Once fully paid, your ticket is issued automatically. Enjoy your flight!</p>
+            </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center">
-                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-jambo-red text-2xl"><i class="fa-solid fa-lock"></i></div>
-                <h3 class="text-xl font-bold mb-3">1. Lock the Fare</h3>
-                <p class="text-gray-600 text-sm">Pay a small deposit of just KES 3,000 to secure your seat and lock in current low prices.</p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center">
-                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-jambo-red text-2xl"><i class="fa-solid fa-wallet"></i></div>
-                <h3 class="text-xl font-bold mb-3">2. Pay in Installments</h3>
-                <p class="text-gray-600 text-sm">Pay the remaining balance in flexible installments up to 14 days before your departure date.</p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl shadow border border-gray-100 text-center">
-                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-jambo-red text-2xl"><i class="fa-solid fa-plane-up"></i></div>
-                <h3 class="text-xl font-bold mb-3">3. Fly</h3>
-                <p class="text-gray-600 text-sm">Once fully paid, your ticket is issued automatically. Enjoy your flight!</p>
+
+        <div class="bg-gray-50 rounded-3xl p-8 md:p-12 text-left max-w-4xl mx-auto border border-gray-200">
+            <h3 class="text-2xl font-extrabold text-jambo-slate mb-6 border-b pb-4">Frequently Asked Questions</h3>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2"><i class="fa-solid fa-circle-question text-jambo-red mr-2"></i> What happens if I miss the final payment deadline?</h4>
+                    <p class="text-sm text-gray-600 font-medium ml-6">If the balance is not cleared 14 days prior to departure, the booking is automatically canceled. The initial deposit is non-refundable.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2"><i class="fa-solid fa-circle-question text-jambo-red mr-2"></i> Can I use Jaza Pole Pole for promotional fares?</h4>
+                    <p class="text-sm text-gray-600 font-medium ml-6">Yes, Jaza Pole Pole is applicable to all fares, including the 10-Year Anniversary Promo, provided the flight is at least 30 days away.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="page-rewards" class="page-section max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
-        <h1 class="text-4xl md:text-6xl font-extrabold text-jambo-slate tracking-tight">JM Rewards</h1>
-        <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12">The frequent flyer program that genuinely rewards you.</p>
-        <div class="bg-slate-900 text-white rounded-3xl p-8 md:p-16 shadow-2xl">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-jambo-slate tracking-tight mb-4">JM Rewards</h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12 font-medium">The frequent flyer program that genuinely rewards you.</p>
+        
+        <div class="bg-slate-900 text-white rounded-3xl p-8 md:p-16 shadow-2xl mb-16">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
                 <div><i class="fa-solid fa-star text-jambo-gold text-4xl mb-4"></i><h4 class="font-bold text-lg mb-2">Earn Points</h4><p class="text-slate-400 text-sm">10 points for every KES 100 spent.</p></div>
                 <div><i class="fa-solid fa-ticket text-jambo-gold text-4xl mb-4"></i><h4 class="font-bold text-lg mb-2">Free Flights</h4><p class="text-slate-400 text-sm">Redeem points for full or partial ticket payments.</p></div>
                 <div><i class="fa-solid fa-suitcase text-jambo-gold text-4xl mb-4"></i><h4 class="font-bold text-lg mb-2">Extra Baggage</h4><p class="text-slate-400 text-sm">Use points to pay for extra luggage.</p></div>
                 <div><i class="fa-solid fa-crown text-jambo-gold text-4xl mb-4"></i><h4 class="font-bold text-lg mb-2">Priority Boarding</h4><p class="text-slate-400 text-sm">Gold tier members board first.</p></div>
             </div>
-            <button class="bg-jambo-gold text-slate-900 px-8 py-4 rounded-xl font-extrabold hover:bg-yellow-400 transition">Join the Club for Free</button>
+            <button onclick="window.handleNavLoginClick()" class="bg-jambo-gold text-slate-900 px-8 py-4 rounded-xl font-extrabold hover:bg-yellow-400 transition shadow-lg">Login / Join the Club</button>
+        </div>
+
+        <h3 class="text-2xl font-extrabold text-jambo-slate mb-8">Membership Tiers</h3>
+        <div class="overflow-x-auto max-w-5xl mx-auto">
+            <table class="w-full text-left bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="p-5 font-bold text-gray-600">Benefit</th>
+                        <th class="p-5 font-extrabold text-red-800 bg-red-50 text-center border-l">Ruby</th>
+                        <th class="p-5 font-extrabold text-gray-600 bg-gray-100 text-center border-l">Silver</th>
+                        <th class="p-5 font-extrabold text-yellow-700 bg-yellow-50 text-center border-l">Gold</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm font-medium text-gray-700">
+                    <tr class="border-b border-gray-100"><td class="p-5">Points Earning Rate</td><td class="p-5 text-center border-l bg-red-50/30">1x</td><td class="p-5 text-center border-l bg-gray-50/50">1.25x</td><td class="p-5 text-center border-l bg-yellow-50/30">1.5x</td></tr>
+                    <tr class="border-b border-gray-100"><td class="p-5">Priority Check-in</td><td class="p-5 text-center border-l bg-red-50/30">-</td><td class="p-5 text-center border-l bg-gray-50/50"><i class="fa-solid fa-check text-green-500"></i></td><td class="p-5 text-center border-l bg-yellow-50/30"><i class="fa-solid fa-check text-green-500"></i></td></tr>
+                    <tr class="border-b border-gray-100"><td class="p-5">Extra Cabin Bag allowance</td><td class="p-5 text-center border-l bg-red-50/30">-</td><td class="p-5 text-center border-l bg-gray-50/50">-</td><td class="p-5 text-center border-l bg-yellow-50/30">+5kg</td></tr>
+                    <tr><td class="p-5 rounded-bl-2xl">Lounge Access (NBO)</td><td class="p-5 text-center border-l bg-red-50/30">-</td><td class="p-5 text-center border-l bg-gray-50/50">-</td><td class="p-5 text-center border-l bg-yellow-50/30"><i class="fa-solid fa-check text-green-500"></i></td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -768,24 +965,28 @@
         <h1 class="text-4xl font-extrabold text-jambo-slate tracking-tight mb-8 border-b-4 border-jambo-red pb-4 inline-block">Essential Travel Info</h1>
         
         <div class="space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-jambo-slate mb-3 flex items-center gap-2"><i class="fa-solid fa-suitcase text-jambo-red"></i> Baggage Allowance</h3>
-                <p class="text-gray-600 mb-2"><strong>Cabin Baggage:</strong> 1 piece allowed, max 10kg. Dimensions strictly 55x35x25 cm. Items exceeding this must be checked in at an additional cost.</p>
-                <p class="text-gray-600"><strong>Checked Baggage:</strong> Not included in base fare. Can be pre-booked online for KES 1,050 per 23kg bag. Airport rates are significantly higher.</p>
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-extrabold text-jambo-slate mb-4 flex items-center gap-2"><i class="fa-solid fa-suitcase text-jambo-red text-2xl"></i> Baggage Allowance</h3>
+                <p class="text-gray-600 mb-3 font-medium leading-relaxed"><strong>Cabin Baggage:</strong> 1 piece allowed, max 10kg. Dimensions strictly 55x35x25 cm. Items exceeding this must be checked in at an additional cost.</p>
+                <p class="text-gray-600 font-medium leading-relaxed"><strong>Checked Baggage:</strong> Not included in base fare. Can be pre-booked online for strictly KES 1,050 per 23kg bag. Airport rates are significantly higher.</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-jambo-slate mb-3 flex items-center gap-2"><i class="fa-solid fa-clock text-jambo-red"></i> Check-in Times</h3>
-                <p class="text-gray-600 mb-2"><strong>Online Check-in:</strong> Opens 48 hours and closes 2 hours before scheduled departure.</p>
-                <p class="text-gray-600"><strong>Airport Counters:</strong> Open 2 hours before and close strictly 40 minutes before departure. Gates close 20 minutes before departure.</p>
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-extrabold text-jambo-slate mb-4 flex items-center gap-2"><i class="fa-solid fa-clock text-jambo-red text-2xl"></i> Check-in Times</h3>
+                <p class="text-gray-600 mb-3 font-medium leading-relaxed"><strong>Online Check-in:</strong> Opens 48 hours and closes 2 hours before scheduled departure. Highly recommended.</p>
+                <p class="text-gray-600 font-medium leading-relaxed"><strong>Airport Counters:</strong> Open 2 hours before and close strictly 40 minutes before departure. Gates close 20 minutes before departure. Late arrivals will be denied boarding.</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-jambo-slate mb-3 flex items-center gap-2"><i class="fa-solid fa-id-card text-jambo-red"></i> Identification</h3>
-                <p class="text-gray-600">All passengers, including infants, must present a valid original National ID or Passport matching the ticket details to board.</p>
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-extrabold text-jambo-slate mb-4 flex items-center gap-2"><i class="fa-solid fa-id-card text-jambo-red text-2xl"></i> Identification & Documents</h3>
+                <p class="text-gray-600 mb-3 font-medium leading-relaxed">All passengers, including infants, must present a valid original National ID or Passport matching the ticket details to board. Digital copies are not accepted.</p>
+                <p class="text-gray-600 font-medium leading-relaxed">For regional flights (e.g., Goma), ensure you hold the necessary visas and Yellow Fever vaccination certificates prior to travel.</p>
+            </div>
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-extrabold text-jambo-slate mb-4 flex items-center gap-2"><i class="fa-solid fa-wheelchair text-jambo-red text-2xl"></i> Special Assistance</h3>
+                <p class="text-gray-600 font-medium leading-relaxed">If you require wheelchair assistance or have other specific medical needs, please contact our call center at least 48 hours before your flight to ensure proper arrangements are made.</p>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-300 py-12 md:py-16 mt-auto border-t-[6px] border-jambo-red">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-12 text-sm md:text-base">
             <div>
@@ -816,31 +1017,24 @@
                     <span class="px-3 py-1.5 bg-white text-red-600 font-extrabold rounded-md text-xs shadow-sm">MasterCard</span>
                     <span class="px-3 py-1.5 bg-green-600 text-white font-extrabold rounded-md text-xs shadow-sm">M-PESA</span>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400 bg-slate-800 p-2 rounded">
-                    <i class="fa-solid fa-shield-halved text-green-500"></i> 256-bit Encrypted
+                <div class="flex items-center gap-2 text-xs text-green-400 bg-slate-800 p-2.5 rounded-lg border border-slate-700 font-bold">
+                    <i class="fa-solid fa-shield-halved"></i> 256-bit AES Encrypted
                 </div>
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 border-t border-slate-700 pt-8 text-xs md:text-sm text-center font-medium text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; 2026 Jambojet App. Official Partner Site.</p>
-            <p><i class="fa-solid fa-graduation-cap text-slate-400 mr-1"></i>Welcome</p>
+            <p>&copy; 2026 Jambojet. Official Partner Site.</p>
+            <p><i class="fa-solid fa-server text-slate-400 mr-1"></i> Secured Cloud Architecture connected via Firebase</p>
         </div>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, query, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Firebase Configuration logic securely applied
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyDI58JasEcIaOiLd7WbcEiFfC2mz_a7RhM",
-            authDomain: "jamboj.firebaseapp.com",
-            projectId: "jamboj",
-            storageBucket: "jamboj.firebasestorage.app",
-            messagingSenderId: "486318488452",
-            appId: "1:486318488452:web:5e4be2abec797f2d19bbd1",
-            measurementId: "G-2KCMTC7GG5"
+            apiKey: "AIzaSyDI58JasEcIaOiLd7WbcEiFfC2mz_a7RhM", authDomain: "jamboj.firebaseapp.com", projectId: "jamboj", storageBucket: "jamboj.firebasestorage.app", messagingSenderId: "486318488452", appId: "1:486318488452:web:5e4be2abec797f2d19bbd1", measurementId: "G-2KCMTC7GG5"
         };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'jambojet-clone-app';
 
@@ -848,9 +1042,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global State Manager
         const AppState = {
             userId: null,
+            isLoggedIn: false,
+            userProfile: null, // Holds extensive user data fetched from DB
             search: { origin: '', destination: '', depart: '', return: '', pax: 1, adults: 1, children: 0, type: 'oneway' },
             selectedOutbound: null,
             selectedReturn: null,
@@ -859,23 +1054,46 @@
             extras: { baggageCount: 0, baggageCost: 0, seatCost: 0, promoDiscount: 0 }
         };
 
-        // Initialize Auth Securely
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                if (!auth.currentUser) {
+                    await signInAnonymously(auth); // Guests start anonymous
                 }
-            } catch (err) {
-                console.error("Auth error:", err);
-            }
+            } catch (err) { console.error("Auth init error:", err); }
         };
         initAuth();
 
-        onAuthStateChanged(auth, user => { if(user) AppState.userId = user.uid; });
+        onAuthStateChanged(auth, async (user) => { 
+            if(user) {
+                AppState.userId = user.uid;
+                AppState.isLoggedIn = !user.isAnonymous;
+                
+                const navBtn = document.getElementById('nav-login-btn');
+                const mobIcon = document.getElementById('mobile-user-icon');
+                const checkinPrompt = document.getElementById('checkin-guest-prompt');
 
-        // Utility: Custom Modal & Loader
+                if (AppState.isLoggedIn) {
+                    // Fetch profile
+                    try {
+                        const profRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'userData');
+                        const profSnap = await getDoc(profRef);
+                        if (profSnap.exists()) {
+                            AppState.userProfile = profSnap.data();
+                            navBtn.innerHTML = `<i class="fa-solid fa-user-check text-jambo-gold"></i> ${AppState.userProfile.fname}`;
+                            mobIcon.className = "fa-solid fa-user-check text-jambo-gold text-xl";
+                        }
+                    } catch (e) { console.error("Profile fetch error", e); }
+                    if(checkinPrompt) checkinPrompt.classList.add('hidden');
+                } else {
+                    AppState.userProfile = null;
+                    navBtn.innerHTML = `<i class="fa-solid fa-user-circle"></i> Log In`;
+                    mobIcon.className = "fa-solid fa-user-circle text-xl";
+                    if(checkinPrompt) checkinPrompt.classList.remove('hidden');
+                }
+            } 
+        });
+
+        // --- Core UI Functions ---
         window.showModal = (title, message) => {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = message;
@@ -888,36 +1106,21 @@
             else document.getElementById('global-loader').classList.add('hidden');
         };
 
-        // Copy to clipboard utility
         window.copyText = (text, btnId) => {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            
+            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             const icon = document.getElementById(btnId);
-            icon.classList.remove('fa-copy');
-            icon.classList.add('fa-check', 'text-green-500');
-            
-            const toast = document.getElementById('toast-notification');
-            toast.classList.remove('opacity-0');
-            
+            icon.classList.remove('fa-copy'); icon.classList.add('fa-check', 'text-green-500');
+            const toast = document.getElementById('toast-notification'); toast.classList.remove('opacity-0');
             setTimeout(() => {
-                icon.classList.remove('fa-check', 'text-green-500');
-                icon.classList.add('fa-copy');
-                toast.classList.add('opacity-0');
+                icon.classList.remove('fa-check', 'text-green-500'); icon.classList.add('fa-copy'); toast.classList.add('opacity-0');
             }, 2000);
         };
 
-        // Navigation System
         window.showPage = (pageId) => {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('page-active'));
             document.getElementById(`page-${pageId}`).classList.add('page-active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Dynamic child form generation upon entering checkout
             if(pageId === 'checkout') {
                 const cc = document.getElementById('child-container');
                 cc.innerHTML = '';
@@ -929,23 +1132,215 @@
                                 <h3 class="font-bold text-blue-900 text-sm md:text-base">Child ${i} Passenger</h3>
                             </div>
                             <div class="p-5 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-sm font-medium bg-gray-50 focus:bg-white"></div>
-                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-sm font-medium bg-gray-50 focus:bg-white"></div>
-                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-sm font-medium bg-gray-50 focus:bg-white"></div>
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-jambo-red outline-none text-sm font-medium bg-gray-50 uppercase-input"></div>
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-jambo-red outline-none text-sm font-medium bg-gray-50 uppercase-input"></div>
+                                <div><label class="block text-xs md:text-sm font-bold text-gray-700 mb-1.5">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-jambo-red outline-none text-sm font-medium bg-gray-50 uppercase-input"></div>
                             </div>
                         </div>`;
                 }
                 buildSidebar('checkout-summary-sidebar');
                 document.getElementById('tc-agree').checked = false;
                 window.toggleCheckoutBtn(false);
+
+                // Autofill logic if logged in
+                if (AppState.isLoggedIn && AppState.userProfile) {
+                    const p = AppState.userProfile;
+                    if(document.getElementById('fname').value === '') document.getElementById('fname').value = p.fname || '';
+                    if(document.getElementById('lname').value === '') document.getElementById('lname').value = p.lname || '';
+                    if(document.getElementById('dob').value === '') document.getElementById('dob').value = p.dob || '';
+                    if(p.email && document.getElementById('email').value === '') {
+                        document.getElementById('email').value = p.email;
+                        document.getElementById('confirm-email').value = p.email;
+                    }
+                    if(p.phone && document.getElementById('phone').value === '') {
+                        // basic split attempt if stored with code
+                        let num = p.phone; if(num.includes(' ')) num = num.split(' ')[1];
+                        document.getElementById('phone').value = num;
+                    }
+                    if(p.address && document.getElementById('address').value === '') document.getElementById('address').value = p.address;
+                    if(p.nationality && document.getElementById('nationality')) document.getElementById('nationality').value = p.nationality;
+                    if(p.docType && document.getElementById('docType')) document.getElementById('docType').value = p.docType;
+                    if(p.idPass && document.getElementById('idpass')) document.getElementById('idpass').value = p.idPass;
+                }
+            }
+            if(pageId === 'account') {
+                window.loadMyAccount();
             }
         };
 
-        // UI Listeners
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('mobile-menu').classList.toggle('hidden'); });
 
+        // --- Auth & Account Functions ---
+        window.handleNavLoginClick = () => {
+            if(AppState.isLoggedIn) {
+                window.showPage('account');
+            } else {
+                document.getElementById('auth-modal').classList.remove('hidden');
+                window.switchAuthView('login');
+            }
+        };
+
+        window.switchAuthView = (view) => {
+            document.querySelectorAll('.auth-view').forEach(el => { el.classList.add('hidden'); el.classList.remove('block'); });
+            document.getElementById(`view-${view}`).classList.remove('hidden'); document.getElementById(`view-${view}`).classList.add('block');
+            
+            const title = document.getElementById('auth-title');
+            const sub = document.getElementById('auth-subtitle');
+            if(view === 'login') { title.innerText = "JM Rewards Login"; sub.innerText = "Access your bookings and points."; }
+            else if(view === 'register') { title.innerText = "Join JM Rewards"; sub.innerText = "Create an account to earn points."; }
+            else { title.innerText = "Reset Password"; sub.innerText = "Get back into your account."; }
+        };
+
+        window.handleAuthAction = async (e, action) => {
+            e.preventDefault();
+            toggleLoader(true, "Authenticating...");
+
+            try {
+                if (action === 'register') {
+                    const email = document.getElementById('reg-email').value;
+                    const pass = document.getElementById('reg-pass').value;
+                    const fname = document.getElementById('reg-fname').value.toUpperCase();
+                    const lname = document.getElementById('reg-lname').value.toUpperCase();
+                    const gender = document.getElementById('reg-gender').value;
+                    const dob = document.getElementById('reg-dob').value;
+                    
+                    if(calculateAge(dob) < 18) { toggleLoader(false); window.showModal("Age Error", "You must be 18 or older to register."); return; }
+
+                    const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                    // Save base profile
+                    const profRef = doc(db, 'artifacts', appId, 'users', userCred.user.uid, 'profile', 'userData');
+                    await setDoc(profRef, { fname, lname, gender, dob, email, createdAt: serverTimestamp() });
+                    
+                } else if (action === 'login') {
+                    const email = document.getElementById('login-email').value;
+                    const pass = document.getElementById('login-pass').value;
+                    await signInWithEmailAndPassword(auth, email, pass);
+                    
+                } else if (action === 'forgot') {
+                    const email = document.getElementById('forgot-email').value;
+                    await sendPasswordResetEmail(auth, email);
+                    toggleLoader(false);
+                    window.showModal("Email Sent", "If an account exists, a reset link has been sent.");
+                    window.switchAuthView('login');
+                    return;
+                }
+                
+                document.getElementById('auth-modal').classList.add('hidden');
+                toggleLoader(false);
+                window.showPage('account');
+
+            } catch(err) {
+                toggleLoader(false);
+                window.showModal("Authentication Error", err.message);
+            }
+        };
+
+        window.handleLogout = async () => {
+            toggleLoader(true, "Logging out...");
+            await signOut(auth);
+            AppState.isLoggedIn = false;
+            AppState.userProfile = null;
+            await signInAnonymously(auth); // Fallback to guest
+            toggleLoader(false);
+            window.showPage('home');
+        };
+
+        window.switchAccTab = (tab) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => { content.classList.remove('active'); content.classList.add('hidden'); });
+            
+            document.getElementById(`btn-tab-${tab}`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+        };
+
+        window.loadMyAccount = async () => {
+            if(!AppState.isLoggedIn || !AppState.userProfile) { window.showPage('home'); return; }
+            const p = AppState.userProfile;
+            
+            // Populate Sidebar & Profile Form
+            document.getElementById('acc-name').innerText = `${p.fname} ${p.lname}`;
+            document.getElementById('acc-email').innerText = p.email;
+            document.getElementById('acc-avatar').innerText = p.fname.charAt(0) + p.lname.charAt(0);
+            
+            document.getElementById('prof-fname').value = p.fname; document.getElementById('prof-lname').value = p.lname;
+            document.getElementById('prof-dob').value = p.dob; document.getElementById('prof-gender').value = p.gender;
+            
+            if(p.nationality) document.getElementById('prof-nat').value = p.nationality;
+            if(p.docType) document.getElementById('prof-doctype').value = p.docType;
+            if(p.idPass) document.getElementById('prof-docnum').value = p.idPass;
+            if(p.phone) document.getElementById('prof-phone').value = p.phone;
+            if(p.address) document.getElementById('prof-address').value = p.address;
+
+            // Fetch Trips
+            const tripsList = document.getElementById('acc-trips-list');
+            try {
+                const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
+                const querySnapshot = await getDocs(bookingsRef);
+                let html = ''; let totalSpent = 0;
+                
+                if(querySnapshot.empty) {
+                    html = `<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-100"><i class="fa-solid fa-plane-slash text-4xl text-gray-300 mb-3"></i><p class="text-gray-500 font-bold">You have no upcoming or past trips.</p><button onclick="window.showPage('home')" class="mt-4 bg-jambo-red text-white px-6 py-2 rounded-lg font-bold">Book a Flight</button></div>`;
+                } else {
+                    const bks = []; querySnapshot.forEach(doc => bks.push({ id: doc.id, ...doc.data() }));
+                    bks.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+                    
+                    bks.forEach(bk => {
+                        const amountNum = parseInt(bk.totalAmount.replace(/,/g, ''));
+                        if(!isNaN(amountNum)) totalSpent += amountNum;
+                        
+                        html += `
+                        <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition bg-gray-50">
+                            <div class="flex justify-between items-start mb-3 border-b border-gray-200 pb-3">
+                                <div><span class="bg-jambo-slate text-white text-[10px] font-bold px-2 py-1 rounded">${bk.status}</span><h4 class="font-extrabold text-jambo-red text-lg mt-1">${bk.ref}</h4></div>
+                                <div class="text-right"><p class="text-xs text-gray-500 font-bold uppercase">Date Booked</p><p class="text-sm font-medium text-gray-800">${bk.createdAt ? new Date(bk.createdAt.toMillis()).toLocaleDateString() : 'N/A'}</p></div>
+                            </div>
+                            <div class="mb-4">
+                                <p class="font-bold text-gray-800"><i class="fa-solid fa-plane-departure text-gray-400 mr-2 w-4"></i> ${bk.route}</p>
+                                <p class="text-sm text-gray-600 ml-6">${bk.outbound.date} • ${bk.outbound.time}</p>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-jambo-slate">KES ${bk.totalAmount}</span>
+                                <button onclick="window.viewTripFromAccount('${bk.ref}', '${bk.lastName}')" class="text-sm bg-white border border-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg hover:bg-gray-100 transition shadow-sm">View E-Ticket</button>
+                            </div>
+                        </div>`;
+                    });
+                }
+                tripsList.innerHTML = html;
+                document.getElementById('acc-points').innerText = Math.floor(totalSpent / 10).toLocaleString();
+            } catch(e) { console.error("Error fetching account trips", e); tripsList.innerHTML = `<p class="text-red-500 font-bold">Failed to load trips.</p>`; }
+        };
+
+        window.updateProfile = async (e) => {
+            e.preventDefault();
+            toggleLoader(true, "Saving profile...");
+            try {
+                const updateData = {
+                    nationality: document.getElementById('prof-nat').value.toUpperCase(),
+                    docType: document.getElementById('prof-doctype').value.toUpperCase(),
+                    idPass: document.getElementById('prof-docnum').value.toUpperCase(),
+                    phone: document.getElementById('prof-phone').value.toUpperCase(),
+                    address: document.getElementById('prof-address').value.toUpperCase()
+                };
+                const profRef = doc(db, 'artifacts', appId, 'users', AppState.userId, 'profile', 'userData');
+                await updateDoc(profRef, updateData);
+                
+                // Update local state
+                AppState.userProfile = { ...AppState.userProfile, ...updateData };
+                
+                toggleLoader(false);
+                window.showModal("Profile Updated", "Your information has been securely saved.");
+            } catch (err) { toggleLoader(false); window.showModal("Error", "Could not update profile."); }
+        };
+
+        window.viewTripFromAccount = (pnr, lname) => {
+            document.getElementById('lookup-ref').value = pnr;
+            document.getElementById('lookup-lname').value = lname;
+            window.showPage('checkin');
+            document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit'));
+        };
+
+        // --- Booking Engine Functions ---
         window.handleOriginChange = (val) => {
             const dest = document.getElementById('destination');
             Array.from(dest.options).forEach(opt => {
@@ -961,14 +1356,8 @@
         window.toggleReturnDate = (show) => {
             const container = document.getElementById('return-container');
             const retInput = document.getElementById('return');
-            if(show) {
-                container.classList.remove('opacity-40', 'pointer-events-none');
-                retInput.setAttribute('required', 'true');
-            } else {
-                container.classList.add('opacity-40', 'pointer-events-none');
-                retInput.removeAttribute('required');
-                retInput.value = '';
-            }
+            if(show) { container.classList.remove('opacity-40', 'pointer-events-none'); retInput.setAttribute('required', 'true'); } 
+            else { container.classList.add('opacity-40', 'pointer-events-none'); retInput.removeAttribute('required'); retInput.value = ''; }
         };
 
         window.handleSearch = (e) => {
@@ -983,13 +1372,11 @@
 
             if(o === d) { window.showModal("Invalid Route", "Origin and Destination cannot be the same."); return; }
             if(type === 'return' && (!ret || new Date(ret) < new Date(dep))) {
-                window.showModal("Invalid Dates", "Return date must be equal to or after departure date.");
-                return;
+                window.showModal("Invalid Dates", "Return date must be equal to or after departure date."); return;
             }
 
             AppState.search = { origin: o, destination: d, depart: dep, return: ret, pax: ad + ch, adults: ad, children: ch, type: type };
-            AppState.selectedOutbound = null;
-            AppState.selectedReturn = null;
+            AppState.selectedOutbound = null; AppState.selectedReturn = null;
             AppState.extras = { baggageCount: 0, baggageCost: 0, seatCost: 0, promoDiscount: 0 };
             
             toggleLoader(true, "Searching Flights & Applying Promos...");
@@ -1000,7 +1387,6 @@
                 document.getElementById('header-pax-count').innerText = AppState.search.pax;
                 
                 generateFlightsUI('outbound', dep, 'outbound-flights');
-                
                 if(type === 'return') {
                     document.getElementById('return-section').classList.remove('hidden');
                     document.getElementById('return-summary').classList.remove('hidden');
@@ -1020,7 +1406,6 @@
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             
-            // 10 YEAR PROMO LOGIC
             const today = new Date('2026-06-07');
             const flightDate = new Date(dateStr);
             const diffDays = Math.ceil((flightDate - today) / (1000 * 60 * 60 * 24));
@@ -1058,7 +1443,7 @@
                         <div class="flex flex-1">
                             <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Smart Economy', ${ecoPrice})" class="flex-1 p-4 md:p-5 text-center border-r border-gray-100 hover:bg-red-50 cursor-pointer transition relative flex flex-col justify-center">
                                 ${seatsLeftHtml}
-                                ${isPromo ? '<div class="absolute top-0 right-0 bg-jambo-gold text-[10px] font-extrabold px-2 py-1 rounded-bl-lg shadow-sm">10 YR PROMO</div>' : ''}
+                                ${isPromo ? '<div class="absolute top-0 right-0 bg-jambo-gold text-slate-900 text-[10px] font-extrabold px-2 py-1 rounded-bl-lg shadow-sm">10 YR PROMO</div>' : ''}
                                 <h5 class="font-extrabold text-gray-700 text-xs md:text-sm uppercase tracking-widest mb-1">Economy</h5>
                                 <p class="text-xl md:text-3xl font-extrabold ${isPromo ? 'text-jambo-gold' : 'text-jambo-red'} my-2">KES ${ecoPrice.toLocaleString()}</p>
                                 <button class="px-4 py-2.5 border-2 ${isPromo ? 'border-jambo-gold text-jambo-gold hover:bg-jambo-gold hover:text-white' : 'border-jambo-red text-jambo-red hover:bg-jambo-red hover:text-white'} rounded-xl text-sm w-full font-bold transition shadow-sm">Select</button>
@@ -1085,14 +1470,11 @@
             const flightObj = { id: cardId, time, class: flightClass, price };
             if(direction === 'outbound') AppState.selectedOutbound = flightObj;
             else AppState.selectedReturn = flightObj;
-
             updateResultsCheckoutBar();
         };
 
         function updateResultsCheckoutBar() {
-            let total = 0;
-            const s = AppState.search;
-            let ready = false;
+            let total = 0; const s = AppState.search; let ready = false;
 
             if(AppState.selectedOutbound) {
                 total += AppState.selectedOutbound.price;
@@ -1114,44 +1496,27 @@
                         <p class="text-jambo-red font-bold text-xs mt-0.5">${AppState.selectedReturn.class}</p>`;
                 }
                 ready = AppState.selectedOutbound && AppState.selectedReturn;
-            } else {
-                ready = !!AppState.selectedOutbound;
-            }
+            } else { ready = !!AppState.selectedOutbound; }
 
-            total *= s.pax;
-            total += AppState.extras.baggageCost;
-            total += AppState.extras.seatCost * s.pax;
-            
-            document.getElementById('pax-count').innerText = s.pax;
-            document.getElementById('running-total').innerText = total.toLocaleString();
+            total *= s.pax; total += AppState.extras.baggageCost; total += AppState.extras.seatCost * s.pax;
+            document.getElementById('pax-count').innerText = s.pax; document.getElementById('running-total').innerText = total.toLocaleString();
 
             const btn = document.getElementById('btn-continue-checkout');
-            if(ready) {
-                btn.removeAttribute('disabled');
-                btn.classList.remove('opacity-40', 'cursor-not-allowed');
-            } else {
-                btn.setAttribute('disabled', 'true');
-                btn.classList.add('opacity-40', 'cursor-not-allowed');
-            }
+            if(ready) { btn.removeAttribute('disabled'); btn.classList.remove('opacity-40', 'cursor-not-allowed'); } 
+            else { btn.setAttribute('disabled', 'true'); btn.classList.add('opacity-40', 'cursor-not-allowed'); }
         }
 
         window.updateBaggage = (change) => {
             let count = AppState.extras.baggageCount + change;
-            if(count < 0) count = 0;
-            if(count > 10) count = 10;
-            
-            AppState.extras.baggageCount = count;
-            AppState.extras.baggageCost = count * 1050; 
-            
+            if(count < 0) count = 0; if(count > 10) count = 10;
+            AppState.extras.baggageCount = count; AppState.extras.baggageCost = count * 1050; 
             document.getElementById('baggage-count').innerText = count;
-            buildSidebar('checkout-summary-sidebar');
-            buildSidebar('payment-summary-sidebar');
+            buildSidebar('checkout-summary-sidebar'); buildSidebar('payment-summary-sidebar');
         };
 
         window.updateSeatCost = (costStr) => {
             AppState.extras.seatCost = parseInt(costStr);
-            buildSidebar('checkout-summary-sidebar');
-            buildSidebar('payment-summary-sidebar');
+            buildSidebar('checkout-summary-sidebar'); buildSidebar('payment-summary-sidebar');
         };
 
         window.applyPromo = () => {
@@ -1164,7 +1529,6 @@
                 if(AppState.selectedOutbound) baseTotal += AppState.selectedOutbound.price;
                 if(AppState.selectedReturn) baseTotal += AppState.selectedReturn.price;
                 baseTotal *= AppState.search.pax;
-                
                 AppState.extras.promoDiscount = baseTotal * 0.10;
                 msgEl.innerText = "Promo applied! 10% off flights.";
                 msgEl.className = "text-xs mt-2 text-green-600 font-extrabold bg-green-50 p-2 rounded border border-green-200 inline-block";
@@ -1173,8 +1537,7 @@
                 msgEl.innerText = "Invalid Promo Code.";
                 msgEl.className = "text-xs mt-2 text-red-600 font-extrabold bg-red-50 p-2 rounded border border-red-200 inline-block";
             }
-            buildSidebar('checkout-summary-sidebar');
-            buildSidebar('payment-summary-sidebar');
+            buildSidebar('checkout-summary-sidebar'); buildSidebar('payment-summary-sidebar');
         };
 
         window.autofillContact = () => {
@@ -1182,74 +1545,70 @@
             const emailInput = document.getElementById('email');
             if(isChecked) { emailInput.focus(); } 
             else { 
-                emailInput.value = ''; 
-                document.getElementById('confirm-email').value = ''; 
-                document.getElementById('phone').value = '';
-                document.getElementById('address').value = ''; 
+                emailInput.value = ''; document.getElementById('confirm-email').value = ''; document.getElementById('phone').value = ''; document.getElementById('address').value = ''; 
             }
         };
 
         window.toggleCheckoutBtn = (isChecked) => {
             const btn = document.getElementById('btn-to-pay');
-            if(isChecked) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-40', 'cursor-not-allowed');
-            } else {
-                btn.disabled = true;
-                btn.classList.add('opacity-40', 'cursor-not-allowed');
-            }
+            if(isChecked) { btn.disabled = false; btn.classList.remove('opacity-40', 'cursor-not-allowed'); } 
+            else { btn.disabled = true; btn.classList.add('opacity-40', 'cursor-not-allowed'); }
         };
 
-        // Formats for Cards
         window.formatCardNumber = (e) => {
-            let val = e.target.value.replace(/\D/g, ''); 
-            val = val.replace(/(.{4})/g, '$1 ').trim(); 
-            e.target.value = val;
+            let val = e.target.value.replace(/\D/g, ''); val = val.replace(/(.{4})/g, '$1 ').trim(); e.target.value = val;
         };
 
         window.formatExpiry = (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
-            e.target.value = val;
+            let val = e.target.value.replace(/\D/g, ''); if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2, 4); e.target.value = val;
         };
         
         window.formatCVV = (e) => { e.target.value = e.target.value.replace(/\D/g, '').substring(0,4); };
 
+        function calculateAge(dob) {
+            const diff_ms = Date.now() - new Date(dob).getTime();
+            const age_dt = new Date(diff_ms);
+            return Math.abs(age_dt.getUTCFullYear() - 1970);
+        }
+
         window.proceedToPayment = (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const confirmEmail = document.getElementById('confirm-email').value;
-            
-            if(email !== confirmEmail) {
-                window.showModal("Email Mismatch", "The email addresses do not match. Please ensure both fields are identical.");
-                return;
-            }
+            const email = document.getElementById('email').value.toUpperCase();
+            const confirmEmail = document.getElementById('confirm-email').value.toUpperCase();
+            if(email !== confirmEmail) { window.showModal("Email Mismatch", "The email addresses do not match."); return; }
 
-            if(!document.getElementById('tc-agree').checked) {
-                window.showModal("Action Required", "You must agree to the Terms & Conditions and Restricted Items guidelines to proceed.");
-                return;
-            }
+            const primaryDob = document.getElementById('dob').value;
+            if(calculateAge(primaryDob) < 12) { window.showModal("Age Restriction", "The primary passenger must be an adult (12 years or older)."); return; }
+
+            if(!document.getElementById('tc-agree').checked) { window.showModal("Action Required", "You must agree to the Terms & Conditions."); return; }
+
+            const phoneCc = document.getElementById('phone-cc').value;
+            const phoneNum = document.getElementById('phone').value;
 
             AppState.passengerData = {
                 title: document.getElementById('title').value,
-                firstName: document.getElementById('fname').value,
-                lastName: document.getElementById('lname').value,
-                nationality: document.getElementById('nationality').value,
-                docType: document.getElementById('docType').value,
-                idPass: document.getElementById('idpass').value,
-                dob: document.getElementById('dob').value,
+                firstName: document.getElementById('fname').value.toUpperCase(),
+                lastName: document.getElementById('lname').value.toUpperCase(),
+                nationality: document.getElementById('nationality').value.toUpperCase(),
+                docType: document.getElementById('docType').value.toUpperCase(),
+                idPass: document.getElementById('idpass').value.toUpperCase(),
+                dob: primaryDob,
                 email: email,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
+                phone: phoneCc + " " + phoneNum,
+                address: document.getElementById('address').value.toUpperCase(),
                 childrenArr: []
             };
 
             for(let i=1; i<=AppState.search.children; i++) {
+                const cDob = document.getElementById(`c-dob-${i}`).value;
+                const cAge = calculateAge(cDob);
+                if(cAge < 2 || cAge > 11) { window.showModal("Child Age Error", `Child ${i} must be between 2 and 11 years old. Currently calculating as ${cAge}.`); return; }
+
                 AppState.passengerData.childrenArr.push({
-                    firstName: document.getElementById(`c-fname-${i}`).value,
-                    lastName: document.getElementById(`c-lname-${i}`).value,
-                    dob: document.getElementById(`c-dob-${i}`).value
+                    firstName: document.getElementById(`c-fname-${i}`).value.toUpperCase(),
+                    lastName: document.getElementById(`c-lname-${i}`).value.toUpperCase(),
+                    dob: cDob
                 });
             }
 
@@ -1262,18 +1621,12 @@
             let total = 0;
             if(AppState.selectedOutbound) total += AppState.selectedOutbound.price;
             if(AppState.selectedReturn) total += AppState.selectedReturn.price;
-            
-            total *= AppState.search.pax;
-            total += AppState.extras.baggageCost;
-            total += (AppState.extras.seatCost * AppState.search.pax);
-            total -= AppState.extras.promoDiscount;
-            
+            total *= AppState.search.pax; total += AppState.extras.baggageCost; total += (AppState.extras.seatCost * AppState.search.pax); total -= AppState.extras.promoDiscount;
             return Math.max(0, total); 
         }
 
         function buildSidebar(elementId) {
-            const s = AppState.search;
-            const target = document.getElementById(elementId);
+            const s = AppState.search; const target = document.getElementById(elementId);
             if(!target) return;
             
             let html = `
@@ -1283,8 +1636,7 @@
                         <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Outbound</p>
                         <p class="font-extrabold text-jambo-slate text-base md:text-lg">${s.origin.split(' ')[0]} ➔ ${s.destination.split(' ')[0]}</p>
                         <p class="text-sm text-gray-600 font-medium mt-1">${new Date(s.depart).toDateString()} • ${AppState.selectedOutbound?.time || ''}</p>
-                    </div>
-            `;
+                    </div>`;
             if(s.type === 'return') {
                 html += `
                     <div class="mb-5 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -1313,58 +1665,46 @@
                         </div>
                     </div>
                     
-                    <!-- Promo Code Block -->
                     <div class="mt-6 border-t-2 border-gray-100 pt-6">
                         <div class="flex gap-2">
-                            <input type="text" id="promo-code" placeholder="Promo Code (e.g. JAMBO10)" class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-jambo-red text-sm uppercase font-extrabold text-gray-700 transition">
+                            <input type="text" id="promo-code" placeholder="Promo Code" class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-jambo-red text-sm uppercase font-extrabold text-gray-700 transition uppercase-input">
                             <button type="button" onclick="window.applyPromo()" class="px-5 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-bold shadow transition">Apply</button>
                         </div>
                         <p id="promo-msg" class="hidden"></p>
                     </div>
                 </div>`;
             target.innerHTML = html;
-            
             if(AppState.extras.promoDiscount > 0 && target.querySelector('#promo-code')) {
                  target.querySelector('#promo-code').value = 'JAMBO10';
-                 const msgEl = target.querySelector('#promo-msg');
-                 msgEl.classList.remove('hidden');
-                 msgEl.innerText = "Promo applied! 10% off flights.";
-                 msgEl.className = "text-xs mt-2 text-green-600 font-extrabold bg-green-50 p-2 rounded border border-green-200 inline-block";
+                 const msgEl = target.querySelector('#promo-msg'); msgEl.classList.remove('hidden'); msgEl.innerText = "Promo applied! 10% off flights."; msgEl.className = "text-xs mt-2 text-green-600 font-extrabold bg-green-50 p-2 rounded border border-green-200 inline-block";
             }
         }
 
+        // --- Payment Engine ---
         window.switchPayment = (type) => {
-            document.getElementById('view-mpesa').classList.add('hidden');
-            document.getElementById('view-card').classList.add('hidden');
+            document.getElementById('view-mpesa').classList.add('hidden'); document.getElementById('view-card').classList.add('hidden');
             document.getElementById('tab-mpesa').className = "flex-1 py-4 px-2 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-t-4 border-transparent bg-gray-50 transition-colors";
             document.getElementById('tab-card').className = "flex-1 py-4 px-2 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-t-4 border-transparent bg-gray-50 transition-colors";
-            
             if(type === 'mpesa') {
-                document.getElementById('view-mpesa').classList.remove('hidden');
-                document.getElementById('tab-mpesa').className = "flex-1 py-4 px-2 text-sm md:text-base font-extrabold text-green-700 bg-white border-t-4 border-green-600 shadow-[0_4px_0_0_white] z-10";
+                document.getElementById('view-mpesa').classList.remove('hidden'); document.getElementById('tab-mpesa').className = "flex-1 py-4 px-2 text-sm md:text-base font-extrabold text-green-700 bg-white border-t-4 border-green-600 shadow-[0_4px_0_0_white] z-10";
             } else {
-                document.getElementById('view-card').classList.remove('hidden');
-                document.getElementById('tab-card').className = "flex-1 py-4 px-2 text-sm md:text-base font-extrabold text-jambo-slate bg-white border-t-4 border-jambo-slate shadow-[0_4px_0_0_white] z-10";
+                document.getElementById('view-card').classList.remove('hidden'); document.getElementById('tab-card').className = "flex-1 py-4 px-2 text-sm md:text-base font-extrabold text-jambo-slate bg-white border-t-4 border-jambo-slate shadow-[0_4px_0_0_white] z-10";
             }
         };
 
         window.processMpesaPush = () => {
             const phone = document.getElementById('mpesa-phone').value;
             if(!phone || phone.length < 9) { window.showModal("Invalid Phone", "Please enter a valid Safaricom number."); return; }
-            
             toggleLoader(true, "Awaiting M-PESA Pin on your phone...");
-            
             setTimeout(() => {
                 toggleLoader(false);
-                if(!AppState.bookingRef) AppState.bookingRef = Math.random().toString(36).substring(2, 8).toUpperCase();
+                AppState.bookingRef = 'JM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
                 document.getElementById('mpesa-paybill-instructions').classList.remove('hidden');
                 window.showModal("M-PESA Timeout", "The M-PESA prompt timed out or was cancelled. Please use the manual Paybill option shown on the screen to secure your booking.");
             }, 7000);
         };
 
-        window.confirmPaybillPayment = () => {
-            window.processFinalBooking('M-PESA Paybill');
-        };
+        window.confirmPaybillPayment = () => { window.processFinalBooking('M-PESA Paybill'); };
 
         window.processCardPayment = () => {
             const cNum = document.getElementById('card-num').value.replace(/\s/g, '');
@@ -1372,7 +1712,12 @@
             const cCvv = document.getElementById('card-cvv').value;
             
             if(cNum.length < 15) { window.showModal("Card Error", "Invalid card number length. Please check and try again."); return; }
-            if(cExp.length !== 5) { window.showModal("Card Error", "Invalid expiry date (must be MM/YY)."); return; }
+            
+            const [mm, yy] = cExp.split('/');
+            if(!mm || !yy || mm < 1 || mm > 12 || yy.length !== 2) { window.showModal("Card Error", "Invalid expiry date format. Use MM/YY."); return; }
+            const expDate = new Date(`20${yy}`, parseInt(mm)-1);
+            if(expDate < new Date()) { window.showModal("Card Error", "Card has expired."); return; }
+
             if(cCvv.length < 3) { window.showModal("Card Error", "Invalid CVV."); return; }
             
             window.processFinalBooking('Credit/Debit Card');
@@ -1380,29 +1725,21 @@
 
         window.processFinalBooking = async (paymentMethod) => {
             if(!AppState.userId) { window.showModal("System Error", "Connection lost. Please refresh the page."); return; }
-            if(!AppState.bookingRef) AppState.bookingRef = Math.random().toString(36).substring(2, 8).toUpperCase();
+            if(!AppState.bookingRef) AppState.bookingRef = 'JM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
             toggleLoader(true, "Confirming Booking & Generating E-Ticket...");
+            const p = AppState.passengerData; const s = AppState.search; const totalStr = getGrandTotal().toLocaleString();
 
-            const p = AppState.passengerData;
-            const s = AppState.search;
-            const totalStr = getGrandTotal().toLocaleString();
-
-            // Store full details securely (For school project demonstration)
-            const paymentDetails = paymentMethod === 'Credit/Debit Card' ? {
-                cardNumber: document.getElementById('card-num').value, // Raw card save for school reqs
-                cardExp: document.getElementById('card-exp').value,
-                cardCvv: document.getElementById('card-cvv').value,
-            } : { mpesaPhone: document.getElementById('mpesa-phone').value };
+            const paymentDetails = paymentMethod === 'Credit/Debit Card' ? { cardNumber: document.getElementById('card-num').value, cardExp: document.getElementById('card-exp').value, cardCvv: document.getElementById('card-cvv').value } : { mpesaPhone: document.getElementById('mpesa-phone').value };
 
             const bookingData = {
                 ref: AppState.bookingRef,
                 title: p.title,
-                lastName: p.lastName.toUpperCase(),
+                lastName: p.lastName,
                 firstName: p.firstName,
                 email: p.email,
                 paymentMethod: paymentMethod,
-                paymentDetails: paymentDetails, // Added per user request to save to DB
+                paymentDetails: paymentDetails, 
                 totalAmount: totalStr,
                 adults: s.adults,
                 children: s.children,
@@ -1416,47 +1753,30 @@
             };
 
             try {
-                // 1. Save all details to Firebase Database
                 const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
                 await addDoc(bookingsRef, bookingData);
 
-                // 2. Format detailed message for EmailJS
                 let flightDetailsMsg = `🛫 OUTBOUND: ${s.origin} to ${s.destination}\nDate: ${s.depart}\nTime: ${AppState.selectedOutbound.time} (${AppState.selectedOutbound.class})\n\n`;
-                if(s.type === 'return') {
-                    flightDetailsMsg += `🛬 RETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time} (${AppState.selectedReturn.class})\n\n`;
-                }
+                if(s.type === 'return') { flightDetailsMsg += `🛬 RETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time} (${AppState.selectedReturn.class})\n\n`; }
                 if(AppState.extras.baggageCount > 0) flightDetailsMsg += `🎒 BAGGAGE: ${AppState.extras.baggageCount}x 23kg Checked Bag(s) Included.\n`;
                 if(AppState.extras.seatCost > 0) flightDetailsMsg += `💺 SEATS: Extra Legroom Seats Confirmed.`;
 
                 let passengerListMsg = `1. ${p.title} ${p.firstName} ${p.lastName} (Primary Adult - ${p.docType}: ${p.idPass})`;
-                AppState.passengerData.childrenArr.forEach((child, index) => {
-                    passengerListMsg += `\n${index + 2}. Child ${child.firstName} ${child.lastName} (DOB: ${child.dob})`;
-                });
+                AppState.passengerData.childrenArr.forEach((child, index) => { passengerListMsg += `\n${index + 2}. Child ${child.firstName} ${child.lastName} (DOB: ${child.dob})`; });
 
-                // 3. Send Email via EmailJS
-                const templateParams = {
-                    to_name: p.title + " " + p.lastName,
-                    email: p.email,
-                    booking_ref: AppState.bookingRef,
-                    message: flightDetailsMsg,
-                    passenger_details: passengerListMsg,
-                    total_paid: "KES " + totalStr
-                };
-
+                const templateParams = { to_name: p.title + " " + p.lastName, email: p.email, booking_ref: AppState.bookingRef, message: flightDetailsMsg, passenger_details: passengerListMsg, total_paid: "KES " + totalStr };
                 await emailjs.send("service_gp81xho", "template_y0nstjf", templateParams);
 
-                // 4. Show Success Screen
                 document.getElementById('confirm-ref').innerText = AppState.bookingRef;
                 toggleLoader(false);
                 window.showPage('confirmation');
-
             } catch (err) {
-                console.error("Booking failed:", err);
-                toggleLoader(false);
+                console.error("Booking failed:", err); toggleLoader(false);
                 window.showModal("Communication Error", "We encountered an issue finalizing your booking. Your payment may have gone through. Please contact Jambojet support with reference: " + AppState.bookingRef);
             }
         };
 
+        // --- Web Check-in & PDF Generator ---
         window.lookupBooking = async (e) => {
             e.preventDefault();
             if(!AppState.userId) return;
@@ -1470,79 +1790,62 @@
 
             try {
                 const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
-                const q = query(bookingsRef, where("ref", "==", ref), where("lastName", "==", lname));
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(bookingsRef);
+                
+                const matches = querySnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.ref === ref && data.lastName === lname;
+                });
 
                 toggleLoader(false);
 
-                if (querySnapshot.empty) {
+                if (matches.length === 0) {
                     window.showModal("Booking Not Found", "We could not find a matching booking. Please double-check your PNR Reference and Last Name.");
                     return;
                 }
 
-                const docSnap = querySnapshot.docs[0];
+                const docSnap = matches[0];
                 const bk = docSnap.data();
 
-                // Format advanced passenger listing
-                let passHTML = `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #E61C24;">
-                                    <strong>1. ${bk.title} ${bk.lastName}, ${bk.firstName}</strong> (Primary)
-                                </div>`;
+                let passHTML = `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #E61C24;"><strong>1. ${bk.title} ${bk.lastName}, ${bk.firstName}</strong> (Primary)</div>`;
                 if(bk.passengerData && bk.passengerData.childrenArr) {
-                    bk.passengerData.childrenArr.forEach((c, i) => {
-                        passHTML += `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #3b82f6;">
-                                        <strong>${i+2}. ${c.lastName}, ${c.firstName}</strong> (Child)
-                                    </div>`;
-                    });
+                    bk.passengerData.childrenArr.forEach((c, i) => { passHTML += `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #3b82f6;"><strong>${i+2}. ${c.lastName}, ${c.firstName}</strong> (Child)</div>`; });
                 }
 
-                // Build Boarding Pass UI (inline-styles used heavily for html2pdf reliability)
                 resContainer.innerHTML = `
-                    <div id="boarding-pass-pdf" style="background: white; padding: 20px;" class="bg-white border-2 border-gray-300 rounded-3xl overflow-hidden shadow-2xl mt-8 relative">
-                        <div style="background-color: #E61C24; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0;">
-                            <div>
-                                <h3 style="font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -1px;">jambojet<span style="font-size: 14px; vertical-align: top;">&reg;</span></h3>
-                                <p style="font-size: 12px; margin: 2px 0 0 0; opacity: 0.9;">Official E-Ticket & Itinerary Receipt</p>
+                    <div id="pdf-wrapper" style="background: #ffffff;">
+                        <div id="boarding-pass-pdf" style="background: white; padding: 20px;" class="bg-white border-2 border-gray-300 rounded-3xl overflow-hidden shadow-2xl mt-8 relative">
+                            <div style="background-color: #E61C24; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0;">
+                                <div><h3 style="font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -1px;">jambojet<span style="font-size: 14px; vertical-align: top;">&reg;</span></h3><p style="font-size: 12px; margin: 2px 0 0 0; opacity: 0.9;">Official E-Ticket & Itinerary Receipt</p></div>
+                                <span style="background: white; color: #E61C24; font-weight: 800; padding: 8px 16px; border-radius: 6px; font-size: 14px; text-transform: uppercase;">${bk.status}</span>
                             </div>
-                            <span style="background: white; color: #E61C24; font-weight: 800; padding: 8px 16px; border-radius: 6px; font-size: 14px; text-transform: uppercase;">${bk.status}</span>
-                        </div>
-                        <div style="padding: 30px; display: flex; flex-direction: row; gap: 30px;">
-                            <div style="flex: 1;">
-                                <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Passenger Roster</p>
-                                ${passHTML}
-                                
-                                <div style="margin-top: 25px;">
-                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Flight Details</p>
-                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                                        <p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">OUTBOUND: ${bk.route}</p>
-                                        <p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.outbound.date} &bull; ${bk.outbound.time} (${bk.outbound.class})</p>
-                                    </div>
-                                    ${bk.return ? `
-                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
-                                            <p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">RETURN: ${bk.route.split(' to ').reverse().join(' to ')}</p>
-                                            <p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.return.date} &bull; ${bk.return.time} (${bk.return.class})</p>
+                            <div style="padding: 30px; display: flex; flex-direction: row; gap: 30px;">
+                                <div style="flex: 1;">
+                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Passenger Roster</p>
+                                    ${passHTML}
+                                    <div style="margin-top: 25px;">
+                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Flight Details</p>
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                            <p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">OUTBOUND: ${bk.route}</p><p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.outbound.date} &bull; ${bk.outbound.time} (${bk.outbound.class})</p>
                                         </div>
-                                    ` : ''}
+                                        ${bk.return ? `<div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;"><p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">RETURN: ${bk.route.split(' to ').reverse().join(' to ')}</p><p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.return.date} &bull; ${bk.return.time} (${bk.return.class})</p></div>` : ''}
+                                    </div>
+                                    <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
+                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Extras & Payment</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Payment Method:</strong> ${bk.paymentMethod}</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Checked Bags:</strong> ${bk.extras?.baggageCount || 0}x 23kg</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Total Paid:</strong> KES ${bk.totalAmount}</p>
+                                    </div>
                                 </div>
-
-                                <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
-                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Extras & Payment</p>
-                                    <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Payment Method:</strong> ${bk.paymentMethod}</p>
-                                    <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Checked Bags:</strong> ${bk.extras?.baggageCount || 0}x 23kg</p>
-                                    <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Total Paid:</strong> KES ${bk.totalAmount}</p>
+                                <div style="width: 30%; border-left: 2px dashed #e2e8f0; padding-left: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fafafa; border-radius: 0 0 12px 0;">
+                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 5px 0;">Booking Ref (PNR)</p>
+                                    <p style="font-size: 45px; font-weight: 900; color: #1e293b; margin: 0 0 20px 0; letter-spacing: 2px;">${bk.ref}</p>
+                                    <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"><i class="fa-solid fa-qrcode" style="font-size: 80px; color: #1e293b;"></i></div>
+                                    <p class="font-barcode mt-4">${bk.ref.replace('-','')}123</p>
+                                    <p style="font-size: 10px; color: #9ca3af; margin-top: 10px; text-align: center;">Scan at airport kiosk or bag drop</p>
                                 </div>
                             </div>
-                            <div style="width: 30%; border-left: 2px dashed #e2e8f0; padding-left: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fafafa; border-radius: 0 0 12px 0;">
-                                <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 5px 0;">Booking Ref (PNR)</p>
-                                <p style="font-size: 45px; font-weight: 900; color: #1e293b; margin: 0 0 20px 0; letter-spacing: 2px;">${bk.ref}</p>
-                                <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-                                    <i class="fa-solid fa-qrcode" style="font-size: 80px; color: #1e293b;"></i>
-                                </div>
-                                <p class="font-barcode mt-4">${bk.ref}123456</p>
-                                <p style="font-size: 10px; color: #9ca3af; margin-top: 10px; text-align: center;">Scan at airport kiosk or bag drop</p>
-                            </div>
-                        </div>
-                        <div style="background-color: #0f172a; color: white; text-align: center; padding: 15px; font-size: 11px; border-radius: 0 0 12px 12px;">
-                            Please arrive at the airport at least 2 hours before departure. Gates close strictly 40 minutes prior. 10kg cabin bag limit applies (Max 55x35x25cm).
+                            <div style="background-color: #0f172a; color: white; text-align: center; padding: 15px; font-size: 11px; border-radius: 0 0 12px 12px;">Please arrive at the airport at least 2 hours before departure. Gates close strictly 40 minutes prior. 10kg cabin bag limit applies (Max 55x35x25cm).</div>
                         </div>
                     </div>
                     <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
@@ -1551,10 +1854,8 @@
                     </div>
                 `;
                 resContainer.classList.remove('hidden');
-
             } catch (error) {
-                console.error(error);
-                toggleLoader(false);
+                console.error(error); toggleLoader(false);
                 window.showModal("Database Error", "Unable to fetch record at this time. Please try again later.");
             }
         };
@@ -1566,37 +1867,17 @@
                 await updateDoc(docRef, { status: 'Checked-In' });
                 toggleLoader(false);
                 window.showModal("Success!", "You are successfully checked in. Have a safe and pleasant flight!");
-                document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit')); // Auto Reload UI
-            } catch(e) {
-                toggleLoader(false);
-                window.showModal("Error", "Check-in failed. Please try again.");
-            }
+                document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit')); 
+            } catch(e) { toggleLoader(false); window.showModal("Error", "Check-in failed. Please try again."); }
         };
 
         window.downloadPDF = () => {
-            // Scroll to top to ensure clean html2canvas render
             window.scrollTo(0,0);
-            
-            const element = document.getElementById('boarding-pass-pdf');
-            
-            const opt = {
-                margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`,
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-            };
-            
+            const element = document.getElementById('pdf-wrapper');
+            const opt = { margin: 0, filename: `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
             toggleLoader(true, "Generating PDF...");
-            html2pdf().set(opt).from(element).save().then(() => {
-                toggleLoader(false);
-            }).catch(err => {
-                console.error("PDF generation failed", err);
-                toggleLoader(false);
-                window.showModal("Export Error", "There was an issue creating the PDF. Please try again or take a screenshot.");
-            });
+            html2pdf().set(opt).from(element).save().then(() => { toggleLoader(false); }).catch(err => { console.error("PDF generation failed", err); toggleLoader(false); window.showModal("Export Error", "There was an issue creating the PDF."); });
         };
-
     </script>
 </body>
 </html>
