@@ -37,9 +37,13 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .page-section { display: none; animation: fadeIn 0.4s ease-in-out; }
         .page-active { display: block; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-fast { 0%, 100% { opacity: 1; transform: scale(1) translateX(-50%); } 50% { opacity: 0.8; transform: scale(1.05) translateX(-48%); } }
+        
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #E61C24; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .badge-scarcity { animation: pulse-fast 1.5s infinite; }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -50,11 +54,11 @@
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="text-gray-800 antialiased overflow-x-hidden">
+<body class="text-gray-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
 
     <!-- Custom Alert Modal -->
     <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 max-w-md transform scale-95 transition-transform">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 max-w-md transform transition-transform">
             <h3 id="modal-title" class="text-2xl font-extrabold text-jambo-slate mb-2"></h3>
             <p id="modal-msg" class="text-gray-600 mb-6 leading-relaxed"></p>
             <button onclick="document.getElementById('custom-modal').classList.add('hidden')" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-bold py-3 px-4 rounded-lg transition shadow">Got it</button>
@@ -99,7 +103,8 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-lg">
             <a href="#" onclick="window.showPage('home'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Plan & Book</a>
             <a href="#" onclick="window.showPage('destinations'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Destinations</a>
-            <a href="#" onclick="window.showPage('checkin'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Web Check-in</a>
+            <a href="#" onclick="window.showPage('offers'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Offers</a>
+            <a href="#" onclick="window.showPage('checkin'); document.getElementById('mobile-menu').classList.add('hidden')" class="block px-4 py-3 border-b text-jambo-slate font-bold">Web Check-in / My Trips</a>
         </div>
     </nav>
 
@@ -107,7 +112,7 @@
     <div id="page-home" class="page-section page-active">
         <!-- Hero Image -->
         <div class="relative bg-slate-900 h-[500px]">
-            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Kenya">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Kenya" onerror="this.src='https://placehold.co/2000x500/2A3342/ffffff?text=Jambojet+Flight+Search'">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
             <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
                 <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-4 drop-shadow-lg">Now You Can Fly.</h1>
@@ -139,7 +144,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div class="lg:col-span-1">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">From</label>
-                                <select id="origin" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate">
+                                <select id="origin" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate appearance-none">
                                     <option value="" disabled selected>Origin</option>
                                     <option value="Nairobi (NBO)">Nairobi (NBO)</option>
                                     <option value="Mombasa (MBA)">Mombasa (MBA)</option>
@@ -153,7 +158,7 @@
                             
                             <div class="lg:col-span-1">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">To</label>
-                                <select id="destination" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate">
+                                <select id="destination" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-jambo-red outline-none font-bold text-jambo-slate appearance-none">
                                     <option value="" disabled selected>Destination</option>
                                     <option value="Nairobi (NBO)">Nairobi (NBO)</option>
                                     <option value="Mombasa (MBA)">Mombasa (MBA)</option>
@@ -201,7 +206,7 @@
         <div class="max-w-7xl mx-auto px-4 mb-20 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div onclick="window.showPage('offers')" class="bg-white rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer overflow-hidden border border-gray-100 group">
                 <div class="h-48 overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Promo">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
                     <div class="absolute bottom-4 left-4"><span class="bg-jambo-gold text-jambo-slate text-xs font-extrabold px-2 py-1 rounded mb-2 inline-block">10 YEAR PROMO</span><h3 class="text-white text-xl font-extrabold">KES 2,026 Fares</h3></div>
                 </div>
@@ -218,7 +223,7 @@
             
             <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer overflow-hidden border border-gray-100 group">
                  <div class="h-48 overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Rewards">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
                     <div class="absolute bottom-4 left-4"><h3 class="text-white text-xl font-extrabold">JM Rewards</h3></div>
                 </div>
@@ -232,8 +237,8 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <button onclick="window.showPage('home')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-2 flex items-center text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Modify Search</button>
-                <h2 id="results-header" class="text-3xl font-extrabold text-jambo-slate">Nairobi to Mombasa</h2>
-                <p id="results-dates" class="text-gray-500 font-medium mt-1">Sun, Jun 7</p>
+                <h2 id="results-header" class="text-3xl font-extrabold text-jambo-slate">Route</h2>
+                <p id="results-dates" class="text-gray-500 font-medium mt-1">Dates</p>
             </div>
         </div>
 
@@ -298,7 +303,7 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Nationality *</label>
                                 <select id="nationality" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white">
-                                    <option value="Kenya">Kenya</option>
+                                    <option value="Kenya" selected>Kenya</option>
                                     <option value="Uganda">Uganda</option>
                                     <option value="Tanzania">Tanzania</option>
                                     <option value="Rwanda">Rwanda</option>
@@ -311,7 +316,7 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Document Type *</label>
                                 <select id="docType" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-white">
-                                    <option value="National ID">National ID</option>
+                                    <option value="National ID" selected>National ID</option>
                                     <option value="Passport">Passport</option>
                                     <option value="Alien Card">Alien Card</option>
                                     <option value="Military ID">Military ID</option>
@@ -337,7 +342,7 @@
                         </div>
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Email Address (E-Ticket Destination) *</label><input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none bg-yellow-50"></div>
-                            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Phone Number *</label><input type="tel" id="phone" value="254" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Phone Number *</label><input type="tel" id="phone" placeholder="+254 700 000000" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
                             <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Physical Address / City</label><input type="text" id="address" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
                         </div>
                     </div>
@@ -380,9 +385,9 @@
                     </div>
 
                     <!-- Terms and Conditions Checkbox -->
-                    <div class="mb-6 p-4 border rounded-xl bg-gray-50">
+                    <div class="mb-6 p-4 border rounded-xl bg-gray-50 border-gray-300">
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="tc-agree" required onchange="document.getElementById('btn-to-pay').disabled = !this.checked; document.getElementById('btn-to-pay').classList.toggle('opacity-50'); document.getElementById('btn-to-pay').classList.toggle('cursor-not-allowed')" class="mt-0.5 w-5 h-5 text-jambo-red focus:ring-jambo-red border-gray-300 rounded shadow-inner">
+                            <input type="checkbox" id="tc-agree" required onchange="window.toggleCheckoutBtn(this.checked)" class="mt-0.5 w-5 h-5 text-jambo-red focus:ring-jambo-red border-gray-300 rounded shadow-inner">
                             <span class="text-sm text-gray-700 font-medium leading-tight">
                                 I have read and agree to the <a href="#" class="text-jambo-red hover:underline">Terms & Conditions</a>, <a href="#" class="text-jambo-red hover:underline">Privacy Policy</a>, and acknowledge the restricted items guidelines above. I confirm all personal details match travel documents.
                             </span>
@@ -402,7 +407,7 @@
     </div>
 
     <!-- PAGE 4: PAYMENT -->
-    <div id="page-payment" class="page-section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div id="page-payment" class="page-section max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <button onclick="window.showPage('checkout')" class="text-jambo-red hover:text-jambo-darkred font-bold mb-6 flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Passenger Details</button>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -412,8 +417,8 @@
                     
                     <!-- Tabs -->
                     <div class="flex border-b border-gray-200 mb-6">
-                        <button id="tab-mpesa" onclick="window.switchPayment('mpesa')" class="flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600">M-PESA</button>
-                        <button id="tab-card" onclick="window.switchPayment('card')" class="flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent">Credit/Debit Card</button>
+                        <button id="tab-mpesa" onclick="window.switchPayment('mpesa')" class="flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600 outline-none">M-PESA</button>
+                        <button id="tab-card" onclick="window.switchPayment('card')" class="flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none">Credit/Debit Card</button>
                     </div>
 
                     <!-- M-PESA View -->
@@ -421,7 +426,7 @@
                         <p class="text-sm text-gray-600 mb-4">Enter your Safaricom M-PESA number. A payment request will be sent to your phone.</p>
                         <div class="flex items-center border border-green-500 rounded-lg overflow-hidden mb-6 bg-green-50">
                             <span class="px-4 font-bold text-green-700 border-r border-green-500">+254</span>
-                            <input type="text" id="mpesa-phone" placeholder="712 345 678" class="w-full px-4 py-3 outline-none bg-transparent font-bold text-gray-800">
+                            <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 outline-none bg-transparent font-bold text-gray-800">
                         </div>
                         <button type="button" onclick="window.processMpesaPush()" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
                             <i class="fa-solid fa-mobile-screen"></i> Pay KES <span class="pay-amount-display"></span>
@@ -429,15 +434,15 @@
                         
                         <!-- Hidden Paybill Instructions (Revealed if push fails) -->
                         <div id="mpesa-paybill-instructions" class="hidden mt-6 bg-red-50 border border-red-200 rounded-xl p-5 text-sm">
-                            <h4 class="font-extrabold text-red-700 mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> STK Push Failed</h4>
-                            <p class="text-gray-700 mb-3">Please use M-PESA Paybill instead:</p>
+                            <h4 class="font-extrabold text-red-700 mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> STK Push Failed / Timed Out</h4>
+                            <p class="text-gray-700 mb-3">Please use M-PESA Paybill to complete your booking securely:</p>
                             <ol class="list-decimal pl-5 text-gray-800 space-y-1 font-medium">
                                 <li>Go to M-PESA Menu > Lipa na M-PESA > Paybill</li>
                                 <li>Business Number: <strong class="text-black">737373</strong></li>
-                                <li>Account Number: <strong class="text-jambo-red" id="paybill-account"></strong></li>
+                                <li>Account Number: <strong class="text-jambo-red text-lg" id="paybill-account"></strong></li>
                                 <li>Amount: <strong class="text-black">KES <span class="pay-amount-display"></span></strong></li>
                             </ol>
-                            <button onclick="window.confirmPaybillPayment()" class="mt-4 w-full py-2 bg-jambo-slate text-white rounded font-bold hover:bg-gray-800">I have completed the payment</button>
+                            <button onclick="window.confirmPaybillPayment()" class="mt-4 w-full py-3 bg-jambo-slate text-white rounded-lg font-bold hover:bg-gray-800 shadow transition">I have completed the Paybill transaction</button>
                         </div>
                     </div>
 
@@ -448,16 +453,16 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Card Number</label>
                                 <div class="relative">
                                     <i class="fa-brands fa-cc-visa absolute right-3 top-3.5 text-gray-400 text-xl"></i>
-                                    <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium tracking-widest">
+                                    <input type="text" id="card-num" oninput="window.formatCardNumber(event)" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium tracking-widest text-gray-800">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
-                                <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center">
+                                <input type="text" id="card-exp" oninput="window.formatExpiry(event)" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center text-gray-800">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">CVV</label>
-                                <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="123" maxlength="4" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center tracking-widest">
+                                <input type="password" id="card-cvv" oninput="window.formatCVV(event)" placeholder="•••" maxlength="4" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-medium text-center tracking-widest text-gray-800">
                             </div>
                         </div>
                         <button type="button" onclick="window.processCardPayment()" class="w-full py-4 bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold text-lg rounded-xl shadow transition flex justify-center items-center gap-2">
@@ -479,16 +484,16 @@
                 <i class="fa-solid fa-check text-4xl text-green-500"></i>
             </div>
             <h1 class="text-4xl font-extrabold text-jambo-slate mb-2">Booking Confirmed!</h1>
-            <p class="text-gray-600 mb-8 text-lg">Thank you for flying Jambojet. Your e-ticket has been emailed to you.</p>
+            <p class="text-gray-600 mb-8 text-lg">Thank you for flying Jambojet. Your e-ticket has been successfully sent to your email.</p>
             
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 inline-block mb-8 min-w-[250px]">
                 <p class="text-xs uppercase font-bold text-gray-400 mb-1">Booking Reference (PNR)</p>
-                <p id="confirm-ref" class="text-4xl font-extrabold text-jambo-red tracking-widest"></p>
+                <p id="confirm-ref" class="text-5xl font-extrabold text-jambo-red tracking-widest"></p>
             </div>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="window.showPage('checkin')" class="px-6 py-3 bg-jambo-slate text-white font-bold rounded-lg hover:bg-gray-800 transition shadow">Manage Trip / Check-In</button>
-                <button onclick="window.location.reload()" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition shadow-sm">Book Another Flight</button>
+                <button onclick="window.showPage('checkin')" class="px-8 py-4 bg-jambo-slate text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg">Manage Trip / Web Check-In</button>
+                <button onclick="window.location.reload()" class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition shadow-sm">Book Another Flight</button>
             </div>
         </div>
     </div>
@@ -497,9 +502,10 @@
     <div id="page-checkin" class="page-section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h2 class="text-3xl font-extrabold text-jambo-slate mb-6">Web Check-in & My Trips</h2>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
+            <p class="text-gray-600 mb-6">Retrieve your booking to select seats, add baggage, check-in online, or download your PDF e-ticket/boarding pass.</p>
             <form onsubmit="window.lookupBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div class="md:col-span-1">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Booking Reference</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Booking Reference (PNR)</label>
                     <input type="text" id="lookup-ref" required placeholder="e.g. A1B2C3" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none uppercase font-bold text-jambo-slate">
                 </div>
                 <div class="md:col-span-1">
@@ -507,42 +513,43 @@
                     <input type="text" id="lookup-lname" required placeholder="Passenger Last Name" class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none">
                 </div>
                 <div class="md:col-span-1">
-                    <button type="submit" class="w-full py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded shadow transition">Find Booking</button>
+                    <button type="submit" class="w-full py-3 bg-jambo-red hover:bg-jambo-darkred text-white font-bold rounded shadow transition flex justify-center items-center gap-2"><i class="fa-solid fa-search"></i> Find Booking</button>
                 </div>
             </form>
         </div>
 
-        <div id="booking-result" class="hidden animate-fade-in">
-            <!-- Boarding pass rendering here -->
+        <div id="booking-result" class="hidden">
+            <!-- Boarding pass rendering here via JS -->
         </div>
     </div>
 
     <!-- MOCK STATIC PAGES -->
-    <div id="page-destinations" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-4xl font-extrabold text-jambo-slate">Our Destinations</h1><p class="mt-4 text-gray-600">Explore our routes across East Africa.</p></div>
-    <div id="page-offers" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-4xl font-extrabold text-jambo-slate">Special Offers</h1><p class="mt-4 text-gray-600">View our 10-Year anniversary deals.</p></div>
+    <div id="page-destinations" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-5xl font-extrabold text-jambo-slate">Our Destinations</h1><p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">Explore our extensive network across Kenya and East Africa. With daily flights to Mombasa, Kisumu, Eldoret, Malindi, Diani, Lamu, and Goma.</p><img src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1000&auto=format&fit=crop" class="mt-8 mx-auto rounded-xl shadow-lg opacity-80 max-h-[400px] object-cover w-full"></div>
+    <div id="page-offers" class="page-section max-w-7xl mx-auto px-4 py-20 text-center"><h1 class="text-5xl font-extrabold text-jambo-slate">Special Offers</h1><div class="bg-jambo-gold text-jambo-slate inline-block px-4 py-1 rounded-full font-bold mt-4 mb-6">10 YEARS OF FLYING</div><p class="text-xl text-gray-600 max-w-2xl mx-auto">To celebrate a decade in the skies, we are offering exclusive Smart Economy fares starting at just <strong class="text-jambo-red">KES 2,026</strong> for flights booked 4+ days in advance for travel this June.</p><img src="https://images.unsplash.com/photo-1544015759-22cbafcbdd65?w=1000&auto=format&fit=crop" class="mt-8 mx-auto rounded-xl shadow-lg opacity-90 max-h-[400px] object-cover w-full"></div>
 
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-300 py-12 mt-auto">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div><h4 class="text-white font-extrabold mb-4">About Jambojet</h4><ul class="space-y-2 text-sm"><li>Our Story</li><li>Careers</li><li>Sustainability</li></ul></div>
-            <div><h4 class="text-white font-extrabold mb-4">Products</h4><ul class="space-y-2 text-sm"><li>JM Rewards</li><li>Jaza Pole Pole</li><li>Cargo</li></ul></div>
-            <div><h4 class="text-white font-extrabold mb-4">Support</h4><ul class="space-y-2 text-sm"><li>Manage Booking</li><li>FAQs</li><li>Contact Us</li></ul></div>
+            <div><h4 class="text-white font-extrabold mb-4">About Jambojet</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Our Story</li><li>Careers</li><li>Sustainability</li></ul></div>
+            <div><h4 class="text-white font-extrabold mb-4">Products</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>JM Rewards</li><li>Jaza Pole Pole</li><li>Cargo</li></ul></div>
+            <div><h4 class="text-white font-extrabold mb-4">Support</h4><ul class="space-y-2 text-sm hover:*:text-white hover:*:cursor-pointer transition-colors"><li>Manage Booking</li><li>FAQs</li><li>Contact Us</li></ul></div>
             <div>
                 <h4 class="text-white font-extrabold mb-4">Secure Payments</h4>
-                <div class="flex space-x-2"><span class="px-2 py-1 bg-white text-blue-900 font-bold rounded text-xs">VISA</span><span class="px-2 py-1 bg-white text-red-600 font-bold rounded text-xs">MasterCard</span><span class="px-2 py-1 bg-green-600 text-white font-bold rounded text-xs">M-PESA</span></div>
+                <div class="flex space-x-2"><span class="px-2 py-1 bg-white text-blue-900 font-bold rounded text-xs shadow">VISA</span><span class="px-2 py-1 bg-white text-red-600 font-bold rounded text-xs shadow">MasterCard</span><span class="px-2 py-1 bg-green-600 text-white font-bold rounded text-xs shadow">M-PESA</span></div>
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 border-t border-slate-700 pt-8 text-sm text-center">
-            &copy; 2026 Jambojet Clone Web App. All Rights Reserved.
+            &copy; 2026 Jambojet Pro Web App. A Full Stack School Project.
         </div>
     </footer>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        // Global Firebase Configuration logic
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDI58JasEcIaOiLd7WbcEiFfC2mz_a7RhM",
             authDomain: "jamboj.firebaseapp.com",
             projectId: "jamboj",
@@ -551,11 +558,11 @@
             appId: "1:486318488452:web:5e4be2abec797f2d19bbd1",
             measurementId: "G-2KCMTC7GG5"
         };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jambojet-clone-app';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const APP_ID = 'jambojet-clone-app';
 
         // Global State
         const AppState = {
@@ -568,29 +575,63 @@
             extras: { baggageCount: 0, baggageCost: 0 }
         };
 
-        // Initialize Auth
-        signInAnonymously(auth).catch(console.error);
+        // Initialize Auth Securely
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth error:", err);
+            }
+        };
+        initAuth();
+
         onAuthStateChanged(auth, user => { if(user) AppState.userId = user.uid; });
 
-        // Utility: Custom Modal
+        // Utility: Custom Modal & Loader
         window.showModal = (title, message) => {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = message;
             document.getElementById('custom-modal').classList.remove('hidden');
         };
 
-        // Utility: Loader
         const toggleLoader = (show, text = "Processing...") => {
             document.getElementById('loader-text').innerText = text;
             if(show) document.getElementById('global-loader').classList.remove('hidden');
             else document.getElementById('global-loader').classList.add('hidden');
         };
 
-        // Navigation
+        // Navigation System
+        const originalShowPage = window.showPage;
         window.showPage = (pageId) => {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('page-active'));
             document.getElementById(`page-${pageId}`).classList.add('page-active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Dynamic child form generation upon entering checkout
+            if(pageId === 'checkout') {
+                const cc = document.getElementById('child-container');
+                cc.innerHTML = '';
+                for(let i=1; i<=AppState.search.children; i++) {
+                    cc.innerHTML += `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                            <div class="bg-gray-50 border-b p-4"><h3 class="font-bold text-gray-700"><i class="fa-solid fa-child text-jambo-slate mr-2"></i> Child ${i}</h3></div>
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
+                            </div>
+                        </div>`;
+                }
+                buildSidebar('checkout-summary-sidebar');
+                
+                // Reset checkout specifics
+                document.getElementById('tc-agree').checked = false;
+                window.toggleCheckoutBtn(false);
+            }
         };
 
         // UI Listeners
@@ -598,7 +639,7 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
 
-        // Search & Pricing Logic
+        // Search & Logic
         window.toggleReturnDate = (show) => {
             const container = document.getElementById('return-container');
             const retInput = document.getElementById('return');
@@ -634,8 +675,9 @@
             AppState.search = { origin: o, destination: d, depart: dep, return: ret, pax: ad + ch, adults: ad, children: ch, type: type };
             AppState.selectedOutbound = null;
             AppState.selectedReturn = null;
+            AppState.extras = { baggageCount: 0, baggageCost: 0 };
             
-            toggleLoader(true, "Searching Flights...");
+            toggleLoader(true, "Searching Flights & Applying Promos...");
             
             setTimeout(() => {
                 document.getElementById('results-header').innerText = `${o.split(' ')[0]} to ${d.split(' ')[0]}`;
@@ -665,12 +707,14 @@
             // 10 YEAR PROMO LOGIC: Current Month is June 2026. If > 4 days away, trigger KES 2026.
             const today = new Date('2026-06-07');
             const flightDate = new Date(dateStr);
-            const diffDays = Math.ceil(Math.abs(flightDate - today) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil((flightDate - today) / (1000 * 60 * 60 * 24));
             const isCurrentMonth = flightDate.getMonth() === 5 && flightDate.getFullYear() === 2026; // Month 5 = June
-            const isPromo = diffDays > 4 && isCurrentMonth;
+            const isPromo = diffDays >= 4 && isCurrentMonth;
 
-            const standardBase = Math.floor(Math.random() * 3000) + 4500; 
-            const basePrice = isPromo ? 2026 : standardBase;
+            // Generate premium pricing if booked late, or standard if promo doesn't apply
+            const standardBase = Math.floor(Math.random() * 3000) + 5500; 
+            const premiumBase = Math.floor(Math.random() * 4000) + 12500;
+            const basePrice = isPromo ? 2026 : (diffDays < 4 ? premiumBase : standardBase);
 
             const flights = [
                 { id: `${direction}-1`, time: '06:30 AM', priceOffset: 0 },
@@ -680,32 +724,37 @@
 
             flights.forEach(fl => {
                 const ecoPrice = basePrice + fl.priceOffset;
-                const bizPrice = isPromo ? 8500 : Math.floor(standardBase * 2.5); // Biz doesn't get 2026 promo
+                const bizPrice = isPromo ? 8500 : Math.floor(basePrice * 2.5); // Biz doesn't get 2026 promo
                 
-                // Random Scarcity
-                const seatsLeft = (Math.random() > 0.6) ? `<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-100 text-jambo-red border border-red-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap animate-pulse"><i class="fa-solid fa-fire mr-1"></i> Only ${Math.floor(Math.random()*4)+1} seats left!</div>` : '';
+                // Advanced Scarcity Trigger (random tickets remaining < 5)
+                const isScarce = Math.random() > 0.5;
+                const seatsLeftNum = Math.floor(Math.random()*4) + 1;
+                const seatsLeftHtml = isScarce ? `<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-100 text-jambo-red border border-red-200 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md whitespace-nowrap badge-scarcity z-10"><i class="fa-solid fa-fire mr-1"></i> Only ${seatsLeftNum} seats left!</div>` : '';
+
+                // Premium Alert if near date
+                const premiumAlert = (!isPromo && diffDays < 4) ? `<span class="bg-orange-100 text-orange-800 text-[10px] font-bold px-2 py-0.5 rounded ml-2">LATE BOOKING FARE</span>` : '';
 
                 container.innerHTML += `
-                    <div id="card-${fl.id}" class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col md:flex-row transition hover:border-jambo-red hover:shadow-md mb-4">
+                    <div id="card-${fl.id}" class="bg-white border border-gray-200 rounded-xl overflow-visible flex flex-col md:flex-row transition hover:border-jambo-red hover:shadow-lg mb-6 relative">
                         <div class="p-6 flex-1 flex items-center border-b md:border-b-0 md:border-r border-gray-100">
-                            <div class="mr-6 bg-red-50 p-3 rounded-full text-jambo-red"><i class="fa-solid fa-plane"></i></div>
+                            <div class="mr-6 bg-red-50 p-3 rounded-full text-jambo-red shadow-sm"><i class="fa-solid fa-plane"></i></div>
                             <div>
-                                <h4 class="text-xl font-extrabold text-jambo-slate">${fl.time}</h4>
-                                <p class="text-sm text-gray-500">Direct • 1h 15m</p>
+                                <h4 class="text-xl font-extrabold text-jambo-slate">${fl.time} ${premiumAlert}</h4>
+                                <p class="text-sm text-gray-500 font-medium mt-1">Direct • 1h 15m Flight</p>
                             </div>
                         </div>
                         <div class="flex flex-1">
-                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Smart Economy', ${ecoPrice})" class="flex-1 p-4 text-center border-r border-gray-100 hover:bg-red-50 cursor-pointer transition relative group">
-                                ${seatsLeft}
+                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Smart Economy', ${ecoPrice})" class="flex-1 p-4 text-center border-r border-gray-100 hover:bg-red-50 cursor-pointer transition relative group flex flex-col justify-center">
+                                ${seatsLeftHtml}
                                 ${isPromo ? '<div class="absolute top-0 right-0 bg-jambo-gold text-xs font-bold px-2 py-0.5 rounded-bl shadow">10 YR PROMO</div>' : ''}
-                                <h5 class="font-bold text-gray-700">Economy</h5>
+                                <h5 class="font-bold text-gray-700 text-sm uppercase tracking-wide">Economy</h5>
                                 <p class="text-2xl font-extrabold ${isPromo ? 'text-jambo-gold' : 'text-jambo-red'} my-2">KES ${ecoPrice.toLocaleString()}</p>
-                                <button class="px-4 py-1.5 border-2 ${isPromo ? 'border-jambo-gold text-jambo-gold' : 'border-jambo-red text-jambo-red'} rounded-lg text-sm w-full font-bold group-hover:bg-jambo-red group-hover:text-white transition group-hover:border-jambo-red">Select</button>
+                                <button class="px-4 py-2 border-2 ${isPromo ? 'border-jambo-gold text-jambo-gold group-hover:bg-jambo-gold group-hover:text-white' : 'border-jambo-red text-jambo-red group-hover:bg-jambo-red group-hover:text-white'} rounded-lg text-sm w-full font-bold transition shadow-sm">Select</button>
                             </div>
-                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Business', ${bizPrice})" class="flex-1 p-4 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition relative group">
-                                <h5 class="font-bold text-jambo-slate">Business</h5>
+                            <div onclick="window.selectFlight('${direction}', '${fl.id}', '${fl.time}', 'Business Premier', ${bizPrice})" class="flex-1 p-4 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition relative group flex flex-col justify-center">
+                                <h5 class="font-bold text-jambo-slate text-sm uppercase tracking-wide">Business</h5>
                                 <p class="text-2xl font-extrabold text-jambo-slate my-2">KES ${bizPrice.toLocaleString()}</p>
-                                <button class="px-4 py-1.5 border-2 border-jambo-slate text-jambo-slate rounded-lg text-sm w-full font-bold group-hover:bg-jambo-slate group-hover:text-white transition">Select</button>
+                                <button class="px-4 py-2 border-2 border-jambo-slate text-jambo-slate rounded-lg text-sm w-full font-bold group-hover:bg-jambo-slate group-hover:text-white transition shadow-sm">Select</button>
                             </div>
                         </div>
                     </div>
@@ -717,10 +766,10 @@
             const listPrefix = direction === 'outbound' ? 'outbound' : 'return';
             // Reset styles
             document.querySelectorAll(`[id^="card-${listPrefix}"]`).forEach(el => {
-                el.classList.remove('ring-2', 'ring-jambo-red', 'shadow-md');
+                el.classList.remove('ring-4', 'ring-jambo-red', 'shadow-xl', 'transform', 'scale-[1.02]');
             });
             // Apply selection style
-            document.getElementById(`card-${cardId}`).classList.add('ring-2', 'ring-jambo-red', 'shadow-md');
+            document.getElementById(`card-${cardId}`).classList.add('ring-4', 'ring-jambo-red', 'shadow-xl', 'transform', 'scale-[1.02]');
 
             const flightObj = { id: cardId, time, class: flightClass, price };
             if(direction === 'outbound') AppState.selectedOutbound = flightObj;
@@ -763,7 +812,6 @@
             }
         }
 
-        // --- Extracurricular JS Logic (Baggage, Autofill, Formatters) ---
         window.updateBaggage = (change) => {
             let count = AppState.extras.baggageCount + change;
             if(count < 0) count = 0;
@@ -780,8 +828,24 @@
         window.autofillContact = () => {
             const isChecked = document.getElementById('same-as-pax').checked;
             const emailInput = document.getElementById('email');
-            if(isChecked) emailInput.focus();
-            else { emailInput.value = ''; document.getElementById('address').value = ''; }
+            if(isChecked) {
+                emailInput.focus(); // Simple UX trigger
+            } else { 
+                emailInput.value = ''; 
+                document.getElementById('phone').value = '';
+                document.getElementById('address').value = ''; 
+            }
+        };
+
+        window.toggleCheckoutBtn = (isChecked) => {
+            const btn = document.getElementById('btn-to-pay');
+            if(isChecked) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
         };
 
         window.formatCardNumber = (e) => {
@@ -801,6 +865,11 @@
         window.proceedToPayment = (e) => {
             e.preventDefault();
             
+            if(!document.getElementById('tc-agree').checked) {
+                window.showModal("Action Required", "You must agree to the Terms & Conditions and Restricted Items guidelines to proceed.");
+                return;
+            }
+
             AppState.passengerData = {
                 firstName: document.getElementById('fname').value,
                 lastName: document.getElementById('lname').value,
@@ -827,28 +896,6 @@
             window.showPage('payment');
         };
 
-        // UI Hook to populate child forms before showing checkout
-        const originalShowPage = window.showPage;
-        window.showPage = (pageId) => {
-            if(pageId === 'checkout') {
-                const cc = document.getElementById('child-container');
-                cc.innerHTML = '';
-                for(let i=1; i<=AppState.search.children; i++) {
-                    cc.innerHTML += `
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 border-b p-4"><h3 class="font-bold text-gray-700"><i class="fa-solid fa-child text-jambo-slate mr-2"></i> Child ${i}</h3></div>
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">First Name *</label><input type="text" id="c-fname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Last Name *</label><input type="text" id="c-lname-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Date of Birth *</label><input type="date" id="c-dob-${i}" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-jambo-red outline-none"></div>
-                            </div>
-                        </div>`;
-                }
-                buildSidebar('checkout-summary-sidebar');
-            }
-            originalShowPage(pageId);
-        };
-
         function getGrandTotal() {
             let total = 0;
             if(AppState.selectedOutbound) total += AppState.selectedOutbound.price;
@@ -862,7 +909,7 @@
             if(!target) return;
             
             let html = `
-                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 sticky top-24 shadow-sm">
+                <div class="bg-white rounded-xl p-6 border border-gray-200 sticky top-24 shadow-lg">
                     <h3 class="font-extrabold text-xl mb-4 border-b pb-2 text-jambo-slate">Trip Summary</h3>
                     <div class="mb-4">
                         <p class="text-xs text-gray-500 uppercase font-bold">Outbound</p>
@@ -900,15 +947,15 @@
         window.switchPayment = (type) => {
             document.getElementById('view-mpesa').classList.add('hidden');
             document.getElementById('view-card').classList.add('hidden');
-            document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent";
-            document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent";
+            document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
+            document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-gray-500 hover:text-jambo-slate border-b-2 border-transparent outline-none";
             
             if(type === 'mpesa') {
                 document.getElementById('view-mpesa').classList.remove('hidden');
-                document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600";
+                document.getElementById('tab-mpesa').className = "flex-1 py-3 font-bold text-green-600 border-b-2 border-green-600 outline-none";
             } else {
                 document.getElementById('view-card').classList.remove('hidden');
-                document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-jambo-slate border-b-2 border-jambo-slate";
+                document.getElementById('tab-card').className = "flex-1 py-3 font-bold text-jambo-slate border-b-2 border-jambo-slate outline-none";
             }
         };
 
@@ -924,7 +971,7 @@
                 if(!AppState.bookingRef) AppState.bookingRef = Math.random().toString(36).substring(2, 8).toUpperCase();
                 document.getElementById('paybill-account').innerText = AppState.bookingRef;
                 document.getElementById('mpesa-paybill-instructions').classList.remove('hidden');
-                window.showModal("M-PESA Timeout", "The M-PESA prompt timed out or was cancelled. Please use the Paybill option shown below.");
+                window.showModal("M-PESA Timeout", "The M-PESA prompt timed out or was cancelled. Please use the manual Paybill option shown on the screen to secure your booking.");
             }, 7000);
         };
 
@@ -937,18 +984,18 @@
             const cExp = document.getElementById('card-exp').value;
             const cCvv = document.getElementById('card-cvv').value;
             
-            if(cNum.length < 15) { window.showModal("Card Error", "Invalid card number length."); return; }
-            if(cExp.length !== 5) { window.showModal("Card Error", "Invalid expiry date (MM/YY)."); return; }
+            if(cNum.length < 15) { window.showModal("Card Error", "Invalid card number length. Please check and try again."); return; }
+            if(cExp.length !== 5) { window.showModal("Card Error", "Invalid expiry date (must be MM/YY)."); return; }
             if(cCvv.length < 3) { window.showModal("Card Error", "Invalid CVV."); return; }
             
             window.processFinalBooking('Credit/Debit Card');
         };
 
         window.processFinalBooking = async (paymentMethod) => {
-            if(!AppState.userId) { window.showModal("System Error", "Connection lost. Please refresh."); return; }
+            if(!AppState.userId) { window.showModal("System Error", "Connection lost. Please refresh the page."); return; }
             if(!AppState.bookingRef) AppState.bookingRef = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-            toggleLoader(true, "Confirming Booking & Generating Ticket...");
+            toggleLoader(true, "Confirming Booking & Generating E-Ticket...");
 
             const p = AppState.passengerData;
             const s = AppState.search;
@@ -971,17 +1018,21 @@
             };
 
             try {
-                // 1. Save to Firebase
-                const bookingsRef = collection(db, 'artifacts', APP_ID, 'users', AppState.userId, 'bookings');
+                // 1. Save to Firebase Database
+                const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
                 await addDoc(bookingsRef, bookingData);
 
                 // 2. Format message for EmailJS
-                let flightDetailsMsg = `OUTBOUND: ${s.origin} to ${s.destination}\nDate: ${s.depart}\nTime: ${AppState.selectedOutbound.time}`;
+                let flightDetailsMsg = `🛫 OUTBOUND: ${s.origin} to ${s.destination}\nDate: ${s.depart}\nTime: ${AppState.selectedOutbound.time} (${AppState.selectedOutbound.class})`;
                 if(s.type === 'return') {
-                    flightDetailsMsg += `\n\nRETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time}`;
+                    flightDetailsMsg += `\n\n🛬 RETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time} (${AppState.selectedReturn.class})`;
+                }
+                
+                if(AppState.extras.baggageCount > 0) {
+                    flightDetailsMsg += `\n\n🎒 BAGGAGE: ${AppState.extras.baggageCount}x 23kg Checked Bag(s) Included.`;
                 }
 
-                // 3. Send Email via EmailJS
+                // 3. Send Email via EmailJS using User's exact requested IDs
                 const templateParams = {
                     to_name: p.firstName + " " + p.lastName,
                     email: p.email,
@@ -993,7 +1044,7 @@
 
                 await emailjs.send("service_gp81xho", "template_y0nstjf", templateParams);
 
-                // 4. Show Success
+                // 4. Show Success Screen
                 document.getElementById('confirm-ref').innerText = AppState.bookingRef;
                 toggleLoader(false);
                 window.showPage('confirmation');
@@ -1001,7 +1052,7 @@
             } catch (err) {
                 console.error("Booking failed:", err);
                 toggleLoader(false);
-                window.showModal("Error", "We encountered an issue finalizing your booking. Please contact support.");
+                window.showModal("Communication Error", "We encountered an issue finalizing your booking. Your payment may have gone through. Please contact Jambojet support with reference: " + AppState.bookingRef);
             }
         };
 
@@ -1010,22 +1061,22 @@
             e.preventDefault();
             if(!AppState.userId) return;
 
-            const ref = document.getElementById('lookup-ref').value.toUpperCase();
-            const lname = document.getElementById('lookup-lname').value.toUpperCase();
+            const ref = document.getElementById('lookup-ref').value.toUpperCase().trim();
+            const lname = document.getElementById('lookup-lname').value.toUpperCase().trim();
             
-            toggleLoader(true, "Searching Records...");
+            toggleLoader(true, "Retrieving Secure Records...");
             const resContainer = document.getElementById('booking-result');
             resContainer.classList.add('hidden');
 
             try {
-                const bookingsRef = collection(db, 'artifacts', APP_ID, 'users', AppState.userId, 'bookings');
+                const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
                 const q = query(bookingsRef, where("ref", "==", ref), where("lastName", "==", lname));
                 const querySnapshot = await getDocs(q);
 
                 toggleLoader(false);
 
                 if (querySnapshot.empty) {
-                    window.showModal("Not Found", "We could not find a matching booking. Please check your Reference and Last Name.");
+                    window.showModal("Booking Not Found", "We could not find a matching booking. Please double-check your PNR Reference and Last Name.");
                     return;
                 }
 
@@ -1034,38 +1085,51 @@
 
                 // Build Boarding Pass UI
                 resContainer.innerHTML = `
-                    <div id="boarding-pass-pdf" class="bg-white border-2 border-jambo-slate rounded-xl overflow-hidden shadow-2xl relative">
-                        <div class="bg-jambo-red text-white p-4 flex justify-between items-center">
-                            <h3 class="font-extrabold text-2xl tracking-tighter">jambojet<span class="text-sm align-top">&reg;</span></h3>
-                            <span class="bg-white text-jambo-red font-bold px-3 py-1 rounded text-sm uppercase">${bk.status}</span>
+                    <div id="boarding-pass-pdf" class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-2xl relative">
+                        <div class="bg-jambo-red text-white p-6 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-extrabold text-3xl tracking-tighter">jambojet<span class="text-sm align-top">&reg;</span></h3>
+                                <p class="text-sm opacity-80 mt-1">E-Ticket & Boarding Pass</p>
+                            </div>
+                            <span class="bg-white text-jambo-red font-extrabold px-4 py-2 rounded shadow uppercase tracking-wide">${bk.status}</span>
                         </div>
-                        <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+                        <div class="p-8 flex flex-col md:flex-row gap-8">
                             <div class="flex-1">
-                                <p class="text-xs text-gray-500 uppercase font-bold">Passenger Name</p>
-                                <p class="text-xl font-extrabold text-jambo-slate mb-4">${bk.lastName}, ${bk.firstName}</p>
+                                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Passenger Name</p>
+                                <p class="text-2xl font-extrabold text-jambo-slate mb-6">${bk.lastName}, ${bk.firstName}</p>
                                 
-                                <p class="text-xs text-gray-500 uppercase font-bold">Flight Details</p>
-                                <p class="text-lg font-bold text-gray-800">${bk.route}</p>
-                                <p class="text-gray-600 mb-4">${bk.outbound.date} • ${bk.outbound.time}</p>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
+                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Outbound Flight</p>
+                                    <p class="text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-departure text-jambo-red mr-2"></i> ${bk.route}</p>
+                                    <p class="text-gray-600 font-medium mt-1">${bk.outbound.date} • ${bk.outbound.time}</p>
+                                    <p class="text-sm text-jambo-gold font-bold mt-1">${bk.outbound.class}</p>
+                                </div>
                                 
                                 ${bk.return ? `
-                                    <p class="text-xs text-gray-500 uppercase font-bold mt-4">Return Flight</p>
-                                    <p class="text-lg font-bold text-gray-800">${bk.route.split(' to ').reverse().join(' to ')}</p>
-                                    <p class="text-gray-600">${bk.return.date} • ${bk.return.time}</p>
+                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Return Flight</p>
+                                        <p class="text-xl font-bold text-gray-800"><i class="fa-solid fa-plane-arrival text-jambo-red mr-2"></i> ${bk.route.split(' to ').reverse().join(' to ')}</p>
+                                        <p class="text-gray-600 font-medium mt-1">${bk.return.date} • ${bk.return.time}</p>
+                                        <p class="text-sm text-jambo-gold font-bold mt-1">${bk.return.class}</p>
+                                    </div>
                                 ` : ''}
                             </div>
-                            <div class="md:w-1/3 border-t md:border-t-0 md:border-l border-gray-200 md:pl-8 flex flex-col justify-center items-center">
-                                <p class="text-xs text-gray-500 uppercase font-bold mb-1">Booking Ref</p>
-                                <p class="text-4xl font-extrabold text-jambo-slate tracking-widest">${bk.ref}</p>
-                                <div class="mt-4 p-4 bg-gray-100 rounded-lg">
-                                    <i class="fa-solid fa-qrcode text-6xl text-jambo-slate"></i>
+                            <div class="md:w-1/3 border-t md:border-t-0 md:border-l border-gray-200 md:pl-8 flex flex-col justify-center items-center bg-gray-50 rounded-r-xl">
+                                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Booking Ref (PNR)</p>
+                                <p class="text-5xl font-extrabold text-jambo-slate tracking-widest">${bk.ref}</p>
+                                <div class="mt-8 p-4 bg-white rounded-xl shadow-inner border border-gray-200">
+                                    <i class="fa-solid fa-qrcode text-7xl text-jambo-slate"></i>
                                 </div>
+                                <p class="text-xs text-gray-400 mt-4 text-center">Scan at bag drop</p>
                             </div>
                         </div>
+                        <div class="bg-slate-900 text-white text-center p-3 text-xs">
+                            Please arrive at the airport at least 2 hours before departure. Gates close 40 minutes prior.
+                        </div>
                     </div>
-                    <div class="mt-6 flex gap-4">
-                        <button onclick="window.downloadPDF()" class="px-6 py-3 bg-jambo-slate text-white font-bold rounded shadow hover:bg-gray-800 transition"><i class="fa-solid fa-file-pdf mr-2"></i> Download PDF Ticket</button>
-                        ${bk.status === 'Confirmed' ? `<button onclick="window.performCheckIn('${docSnap.id}')" class="px-6 py-3 bg-green-600 text-white font-bold rounded shadow hover:bg-green-700 transition"><i class="fa-solid fa-check-double mr-2"></i> Confirm Check-In</button>` : ''}
+                    <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
+                        <button onclick="window.downloadPDF()" class="px-8 py-4 bg-jambo-slate text-white font-bold rounded-lg shadow-lg hover:bg-gray-800 transition"><i class="fa-solid fa-file-pdf mr-2"></i> Download PDF Ticket</button>
+                        ${bk.status === 'Confirmed' ? `<button onclick="window.performCheckIn('${docSnap.id}')" class="px-8 py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition"><i class="fa-solid fa-check-double mr-2"></i> Confirm Web Check-In</button>` : ''}
                     </div>
                 `;
                 resContainer.classList.remove('hidden');
@@ -1073,21 +1137,21 @@
             } catch (error) {
                 console.error(error);
                 toggleLoader(false);
-                window.showModal("Database Error", "Unable to fetch record at this time.");
+                window.showModal("Database Error", "Unable to fetch record at this time. Please try again later.");
             }
         };
 
         window.performCheckIn = async (docId) => {
-            toggleLoader(true, "Processing Check-In...");
+            toggleLoader(true, "Processing Web Check-In...");
             try {
-                const docRef = doc(db, 'artifacts', APP_ID, 'users', AppState.userId, 'bookings', docId);
+                const docRef = doc(db, 'artifacts', appId, 'users', AppState.userId, 'bookings', docId);
                 await updateDoc(docRef, { status: 'Checked-In' });
                 toggleLoader(false);
-                window.showModal("Success", "You are successfully checked in. Have a safe flight!");
-                document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit')); // Reload UI
+                window.showModal("Success!", "You are successfully checked in. Have a safe and pleasant flight!");
+                document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit')); // Auto Reload UI
             } catch(e) {
                 toggleLoader(false);
-                window.showModal("Error", "Check-in failed.");
+                window.showModal("Error", "Check-in failed. Please try again.");
             }
         };
 
@@ -1097,7 +1161,7 @@
                 margin: 0.5,
                 filename: `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
             };
             html2pdf().set(opt).from(element).save();
