@@ -66,13 +66,15 @@
         .tab-btn.active { border-bottom: 2px solid #E61C24; color: #E61C24; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        .slogan-transition { transition: opacity 0.5s ease-in-out; }
     </style>
 </head>
 <body class="text-gray-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
 
     <!-- Custom Alert Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[100] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-transform border-t-[6px] border-jambo-red">
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[110] hidden flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-transform border-t-[6px] border-jambo-red relative">
             <h3 id="modal-title" class="text-xl md:text-2xl font-extrabold text-jambo-slate mb-3"></h3>
             <p id="modal-msg" class="text-sm md:text-base text-gray-600 mb-8 leading-relaxed font-medium"></p>
             <button onclick="document.getElementById('custom-modal').classList.add('hidden')" class="w-full bg-jambo-slate hover:bg-gray-800 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg text-lg">Acknowledge</button>
@@ -89,6 +91,8 @@
                 <h3 id="auth-title" class="text-2xl font-extrabold text-jambo-slate">JM Rewards Login</h3>
                 <p id="auth-subtitle" class="text-sm text-gray-500 mt-1">Access your bookings and points.</p>
             </div>
+
+            <div id="auth-error" class="hidden bg-red-50 text-red-600 border border-red-200 text-sm p-3 rounded-lg mb-4 font-bold text-center"></div>
 
             <!-- Login View -->
             <form id="view-login" onsubmit="window.handleAuthAction(event, 'login')" class="auth-view block">
@@ -138,7 +142,7 @@
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
                     <input type="email" id="forgot-email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-jambo-red outline-none font-medium text-gray-800 bg-gray-50 uppercase-input">
                 </div>
-                <button type="submit" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold py-4 rounded-xl transition shadow-lg text-lg">Send Reset Link</button>
+                <button type="submit" class="w-full bg-jambo-red hover:bg-jambo-darkred text-white font-extrabold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2">Send Reset Link</button>
                 <p class="text-center mt-5 text-sm text-gray-600 font-medium"><span onclick="window.switchAuthView('login')" class="text-jambo-slate cursor-pointer hover:underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Login</span></p>
             </form>
         </div>
@@ -146,13 +150,13 @@
 
     <!-- Toast & Loaders -->
     <div id="toast-notification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-bold opacity-0 transition-opacity z-[110] pointer-events-none flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-green-400"></i> Copied to clipboard!
+        <i class="fa-solid fa-circle-check text-green-400"></i> <span id="toast-msg">Copied to clipboard!</span>
     </div>
 
-    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-95 z-[90] hidden flex flex-col items-center justify-center backdrop-blur-md">
+    <div id="global-loader" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-[120] hidden flex flex-col items-center justify-center backdrop-blur-md">
         <div class="loader mb-5"></div>
-        <h2 id="loader-text" class="text-2xl font-extrabold text-jambo-slate text-center px-4 tracking-tight">Processing...</h2>
-        <div class="mt-4 flex items-center gap-2 text-xs text-green-600 font-bold bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
+        <h2 id="loader-text" class="text-2xl font-extrabold text-white text-center px-4 tracking-tight">Processing...</h2>
+        <div class="mt-4 flex items-center gap-2 text-xs text-green-400 font-bold bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
             <i class="fa-solid fa-shield-halved"></i> 256-bit AES Encryption
         </div>
     </div>
@@ -167,7 +171,7 @@
                 <div class="flex items-center cursor-pointer" onclick="window.showPage('home')">
                     <span class="text-3xl md:text-4xl font-extrabold text-jambo-red tracking-tighter hover:text-jambo-darkred transition">jambojet<span class="text-sm md:text-lg font-normal align-top">&reg;</span></span>
                     <div class="hidden sm:flex ml-3 items-center bg-green-50 text-green-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full border border-green-200 shadow-sm">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> Verified Secure
+                        <i class="fa-solid fa-lock mr-1"></i> Verified Secure
                     </div>
                 </div>
                 
@@ -179,7 +183,7 @@
                     <a href="#" onclick="window.showPage('rewards')" class="hover:text-jambo-red transition">JM Rewards</a>
                     <a href="#" onclick="window.showPage('travel-info')" class="hover:text-jambo-red transition">Travel Info</a>
                     <a href="#" onclick="window.showPage('checkin')" class="ml-2 bg-red-50 text-jambo-red px-4 py-2.5 rounded-lg hover:bg-jambo-red hover:text-white transition"><i class="fa-solid fa-suitcase-rolling mr-1"></i> Check-in / Manage</a>
-                    <button id="nav-login-btn" onclick="window.handleNavLoginClick()" class="ml-2 bg-slate-800 text-white px-4 py-2.5 rounded-lg hover:bg-slate-900 transition flex items-center gap-2"><i class="fa-solid fa-user-circle"></i> Log In</button>
+                    <button id="nav-login-btn" onclick="window.handleNavLoginClick()" class="ml-2 bg-slate-800 text-white px-4 py-2.5 rounded-lg hover:bg-slate-900 transition flex items-center gap-2 shadow-sm"><i class="fa-solid fa-user-circle"></i> Log In</button>
                 </div>
 
                 <div class="lg:hidden flex items-center gap-3">
@@ -201,16 +205,16 @@
     </nav>
 
     <div id="page-home" class="page-section page-active">
-        <div class="relative bg-slate-900 h-[450px] md:h-[600px]">
-            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50" alt="Kenya">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-            <div class="absolute inset-0 flex flex-col justify-start md:justify-center items-center text-center px-4 pt-12 md:pt-0">
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 md:mb-4 drop-shadow-2xl tracking-tight">Now You Can Fly.</h1>
+        <div class="relative bg-slate-900 h-[450px] md:h-[600px] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50 transform scale-105" alt="Kenya">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+            <div class="absolute inset-0 flex flex-col justify-start md:justify-center items-center text-center px-4 pt-16 md:pt-0">
+                <h1 id="hero-slogan" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 md:mb-4 drop-shadow-2xl tracking-tight slogan-transition">Now You Can Fly.</h1>
                 <p class="text-base md:text-2xl text-gray-200 max-w-2xl font-medium drop-shadow-lg px-2">Explore Kenya and beyond with the region's premier low-cost airline.</p>
             </div>
         </div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-40 md:-mt-48 relative z-10 mb-12 md:mb-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-32 md:-mt-48 relative z-10 mb-12 md:mb-20">
             <div class="glass-panel rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden">
                 <div class="flex border-b border-gray-200 bg-white/50">
                     <button class="flex-1 py-4 md:py-5 px-2 md:px-4 text-center text-sm md:text-base font-extrabold text-jambo-red bg-white/80"><i class="fa-solid fa-plane-departure mr-2"></i> Book Flight</button>
@@ -562,25 +566,28 @@
                     <div class="p-5 md:p-8">
                         <!-- M-PESA View -->
                         <div id="view-mpesa">
-                            <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-                                <i class="fa-solid fa-circle-info text-green-600 mt-0.5 text-lg"></i>
-                                <p class="text-xs md:text-sm text-green-900 font-medium leading-relaxed">Enter your Safaricom M-PESA number. A secure payment request (STK Push) will be sent to your phone to authorize the transaction.</p>
+                            <div id="mpesa-push-input-area">
+                                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+                                    <i class="fa-solid fa-circle-info text-green-600 mt-0.5 text-lg"></i>
+                                    <p class="text-xs md:text-sm text-green-900 font-medium leading-relaxed">Enter your Safaricom M-PESA number. A secure payment request (STK Push) will be sent to your phone to authorize the transaction.</p>
+                                </div>
+                                
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">M-PESA Phone Number</label>
+                                <div class="flex items-center border-2 border-green-500 rounded-xl overflow-hidden mb-8 bg-white focus-within:ring-4 focus-within:ring-green-100 transition-shadow">
+                                    <span class="px-4 font-bold text-green-800 bg-green-50 border-r border-green-200 py-3 md:py-4">+254</span>
+                                    <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 md:py-4 outline-none bg-transparent font-bold text-gray-800 text-lg md:text-xl tracking-wide uppercase-input">
+                                </div>
+                                
+                                <button type="button" onclick="window.processMpesaPush()" class="w-full py-4 md:py-5 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg md:text-xl rounded-xl shadow-[0_8px_20px_rgba(22,163,74,0.3)] transition-all flex justify-center items-center gap-3 transform hover:-translate-y-0.5">
+                                    <i class="fa-solid fa-mobile-screen"></i> Pay KES <span class="pay-amount-display"></span>
+                                </button>
                             </div>
                             
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">M-PESA Phone Number</label>
-                            <div class="flex items-center border-2 border-green-500 rounded-xl overflow-hidden mb-8 bg-white focus-within:ring-4 focus-within:ring-green-100 transition-shadow">
-                                <span class="px-4 font-bold text-green-800 bg-green-50 border-r border-green-200 py-3 md:py-4">+254</span>
-                                <input type="text" id="mpesa-phone" placeholder="712 345 678" maxlength="10" class="w-full px-4 py-3 md:py-4 outline-none bg-transparent font-bold text-gray-800 text-lg md:text-xl tracking-wide uppercase-input">
-                            </div>
-                            
-                            <button type="button" onclick="window.processMpesaPush()" class="w-full py-4 md:py-5 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg md:text-xl rounded-xl shadow-[0_8px_20px_rgba(22,163,74,0.3)] transition-all flex justify-center items-center gap-3 transform hover:-translate-y-0.5">
-                                <i class="fa-solid fa-lock"></i> Pay KES <span class="pay-amount-display"></span>
-                            </button>
-                            
-                            <div id="mpesa-paybill-instructions" class="hidden mt-8 bg-red-50 border border-red-200 rounded-xl p-5 md:p-6 shadow-inner relative overflow-hidden">
+                            <div id="mpesa-paybill-instructions" class="hidden bg-red-50 border border-red-200 rounded-xl p-5 md:p-6 shadow-inner relative overflow-hidden">
                                 <div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
-                                <h4 class="font-extrabold text-red-700 mb-3 text-base md:text-lg flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-xl"></i> STK Push Timed Out</h4>
-                                <p class="text-sm md:text-base text-gray-700 mb-5 font-medium leading-relaxed">The automatic prompt timed out. Please use M-PESA Paybill manually on your phone to secure your booking before it expires:</p>
+                                <h4 class="font-extrabold text-red-700 mb-3 text-base md:text-lg flex items-center gap-2"><i class="fa-solid fa-clock text-xl"></i> Awaiting Payment</h4>
+                                <p class="text-sm md:text-base text-gray-700 mb-3 font-medium leading-relaxed">Your flight has been securely booked and seats are held. Please complete your M-PESA payment via Paybill to confirm your e-ticket.</p>
+                                <div class="text-center font-bold text-red-600 text-3xl md:text-4xl mb-5 tracking-widest bg-white p-3 rounded border border-red-100 shadow-sm" id="paybill-timer-display">02:00:00</div>
                                 
                                 <div class="bg-white rounded-lg border border-gray-200 p-4 space-y-4 mb-6 shadow-sm">
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-100 gap-2">
@@ -590,14 +597,14 @@
                                         <span class="text-sm text-gray-500 font-bold">2. Business Number:</span>
                                         <div class="flex items-center gap-2">
                                             <strong class="text-lg md:text-xl text-black bg-gray-50 px-3 py-1 rounded border tracking-widest">542542</strong> 
-                                            <button onclick="window.copyText('542542', 'copy-bn')" class="text-gray-400 hover:text-jambo-red p-2 bg-gray-50 rounded border transition" title="Copy"><i id="copy-bn" class="fa-solid fa-copy"></i></button>
+                                            <button type="button" onclick="window.copyText('542542', 'copy-bn')" class="text-gray-400 hover:text-jambo-red p-2 bg-gray-50 rounded border transition" title="Copy"><i id="copy-bn" class="fa-solid fa-copy"></i></button>
                                         </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-100 gap-2">
-                                        <span class="text-sm text-gray-500 font-bold">3. Your Account Number:</span>
+                                        <span class="text-sm text-gray-500 font-bold">3. Account Number:</span>
                                         <div class="flex items-center gap-2">
                                             <strong class="text-lg md:text-xl text-jambo-red bg-red-50 px-3 py-1 rounded border border-red-100 tracking-widest">01708965396150</strong> 
-                                            <button onclick="window.copyText('01708965396150', 'copy-acc')" class="text-gray-400 hover:text-jambo-red p-2 bg-gray-50 rounded border transition" title="Copy"><i id="copy-acc" class="fa-solid fa-copy"></i></button>
+                                            <button type="button" onclick="window.copyText('01708965396150', 'copy-acc')" class="text-gray-400 hover:text-jambo-red p-2 bg-gray-50 rounded border transition" title="Copy"><i id="copy-acc" class="fa-solid fa-copy"></i></button>
                                         </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -605,7 +612,7 @@
                                         <strong class="text-lg md:text-xl text-black">KES <span class="pay-amount-display"></span></strong>
                                     </div>
                                 </div>
-                                <button onclick="window.confirmPaybillPayment()" class="w-full py-4 bg-slate-800 text-white rounded-xl font-extrabold text-base md:text-lg hover:bg-slate-900 shadow-lg transition-all flex items-center justify-center gap-2">
+                                <button type="button" onclick="window.confirmPaybillPayment(this)" class="w-full py-4 bg-slate-800 text-white rounded-xl font-extrabold text-base md:text-lg hover:bg-slate-900 shadow-lg transition-all flex items-center justify-center gap-2">
                                     I have completed the Paybill transaction <i class="fa-solid fa-check-double"></i>
                                 </button>
                             </div>
@@ -654,8 +661,8 @@
                 <div class="w-20 h-20 md:w-24 md:h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-inner border-4 border-white ring-4 ring-green-50">
                     <i class="fa-solid fa-check text-4xl md:text-5xl text-green-500"></i>
                 </div>
-                <h1 class="text-3xl md:text-5xl font-extrabold text-jambo-slate mb-3 tracking-tight">Booking Confirmed!</h1>
-                <p class="text-gray-600 mb-8 md:mb-10 text-base md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">Thank you for flying Jambojet. Your e-ticket and itinerary have been successfully sent to your email.</p>
+                <h1 id="confirm-title" class="text-3xl md:text-5xl font-extrabold text-jambo-slate mb-3 tracking-tight">Booking Confirmed!</h1>
+                <p id="confirm-msg" class="text-gray-600 mb-8 md:mb-10 text-base md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">Thank you for flying Jambojet. Your e-ticket and itinerary have been successfully sent to your email.</p>
                 
                 <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 md:p-8 inline-block mb-10 shadow-sm min-w-[250px] md:min-w-[350px]">
                     <p class="text-[10px] md:text-sm uppercase font-bold text-gray-500 mb-2 tracking-widest">Your Booking Reference (PNR)</p>
@@ -676,7 +683,7 @@
             <p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto font-medium">Retrieve your booking to view details, check-in online 48 hours prior to departure, or download your PDF e-ticket.</p>
         </div>
 
-        <div id="checkin-guest-prompt" class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8 text-center hidden">
+        <div id="checkin-guest-prompt" class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8 text-center hidden shadow-sm">
             <p class="text-blue-900 font-medium mb-3">Want to see all your bookings at a glance?</p>
             <button onclick="window.handleNavLoginClick()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-blue-700 transition">Log In to My Account</button>
         </div>
@@ -704,7 +711,6 @@
 
     <div id="page-account" class="page-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div class="flex flex-col md:flex-row gap-8">
-            <!-- Sidebar -->
             <div class="w-full md:w-1/4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="bg-slate-900 p-6 text-center text-white">
@@ -722,9 +728,7 @@
                 </div>
             </div>
             
-            <!-- Content -->
             <div class="w-full md:w-3/4">
-                <!-- Profile Tab -->
                 <div id="tab-profile" class="tab-content active bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
                     <h2 class="text-2xl font-extrabold text-jambo-slate mb-6 pb-4 border-b border-gray-100">Profile Details</h2>
                     <p class="text-sm text-gray-500 mb-6 font-medium">Keep your details up to date for faster booking checkout.</p>
@@ -757,7 +761,6 @@
                     </form>
                 </div>
 
-                <!-- Trips Tab -->
                 <div id="tab-trips" class="tab-content bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
                     <h2 class="text-2xl font-extrabold text-jambo-slate mb-6 pb-4 border-b border-gray-100">My Trips</h2>
                     <div id="acc-trips-list" class="space-y-4">
@@ -765,7 +768,6 @@
                     </div>
                 </div>
 
-                <!-- Rewards Tab -->
                 <div id="tab-rewards" class="tab-content bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-6 md:p-10 text-white relative overflow-hidden">
                     <div class="absolute -right-10 -bottom-10 opacity-10"><i class="fa-solid fa-crown text-[200px] text-jambo-gold"></i></div>
                     <div class="relative z-10">
@@ -1033,10 +1035,10 @@
         import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, query, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        const firebaseConfig = {
             apiKey: "AIzaSyDI58JasEcIaOiLd7WbcEiFfC2mz_a7RhM", authDomain: "jamboj.firebaseapp.com", projectId: "jamboj", storageBucket: "jamboj.firebasestorage.app", messagingSenderId: "486318488452", appId: "1:486318488452:web:5e4be2abec797f2d19bbd1", measurementId: "G-2KCMTC7GG5"
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jambojet-clone-app';
+        const appId = 'jambojet-clone-app';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -1045,20 +1047,26 @@
         const AppState = {
             userId: null,
             isLoggedIn: false,
-            userProfile: null, // Holds extensive user data fetched from DB
+            userProfile: null, 
             search: { origin: '', destination: '', depart: '', return: '', pax: 1, adults: 1, children: 0, type: 'oneway' },
             selectedOutbound: null,
             selectedReturn: null,
             bookingRef: '',
+            currentDocId: null,
             passengerData: {},
             extras: { baggageCount: 0, baggageCost: 0, seatCost: 0, promoDiscount: 0 }
         };
 
+        window.getSafeMillis = (ts) => {
+            if(!ts) return 0;
+            if(typeof ts.toMillis === 'function') return ts.toMillis();
+            if(ts.seconds) return ts.seconds * 1000;
+            return new Date(ts).getTime() || 0;
+        };
+
         const initAuth = async () => {
             try {
-                if (!auth.currentUser) {
-                    await signInAnonymously(auth); // Guests start anonymous
-                }
+                if (!auth.currentUser) { await signInAnonymously(auth); }
             } catch (err) { console.error("Auth init error:", err); }
         };
         initAuth();
@@ -1073,7 +1081,6 @@
                 const checkinPrompt = document.getElementById('checkin-guest-prompt');
 
                 if (AppState.isLoggedIn) {
-                    // Fetch profile
                     try {
                         const profRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'userData');
                         const profSnap = await getDoc(profRef);
@@ -1093,7 +1100,22 @@
             } 
         });
 
-        // --- Core UI Functions ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const slogans = ["Now You Can Fly.", "Discover Kenya.", "More Than a Journey.", "The Smart Way to Travel."];
+            let sloganIndex = 0;
+            const el = document.getElementById('hero-slogan');
+            if(el) {
+                setInterval(() => {
+                    el.style.opacity = 0;
+                    setTimeout(() => {
+                        sloganIndex = (sloganIndex + 1) % slogans.length;
+                        el.innerText = slogans[sloganIndex];
+                        el.style.opacity = 1;
+                    }, 500); 
+                }, 4500);
+            }
+        });
+
         window.showModal = (title, message) => {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = message;
@@ -1110,7 +1132,9 @@
             const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             const icon = document.getElementById(btnId);
             icon.classList.remove('fa-copy'); icon.classList.add('fa-check', 'text-green-500');
-            const toast = document.getElementById('toast-notification'); toast.classList.remove('opacity-0');
+            const toast = document.getElementById('toast-notification'); 
+            document.getElementById('toast-msg').innerText = "Copied to clipboard!";
+            toast.classList.remove('opacity-0');
             setTimeout(() => {
                 icon.classList.remove('fa-check', 'text-green-500'); icon.classList.add('fa-copy'); toast.classList.add('opacity-0');
             }, 2000);
@@ -1142,7 +1166,6 @@
                 document.getElementById('tc-agree').checked = false;
                 window.toggleCheckoutBtn(false);
 
-                // Autofill logic if logged in
                 if (AppState.isLoggedIn && AppState.userProfile) {
                     const p = AppState.userProfile;
                     if(document.getElementById('fname').value === '') document.getElementById('fname').value = p.fname || '';
@@ -1153,7 +1176,6 @@
                         document.getElementById('confirm-email').value = p.email;
                     }
                     if(p.phone && document.getElementById('phone').value === '') {
-                        // basic split attempt if stored with code
                         let num = p.phone; if(num.includes(' ')) num = num.split(' ')[1];
                         document.getElementById('phone').value = num;
                     }
@@ -1163,26 +1185,20 @@
                     if(p.idPass && document.getElementById('idpass')) document.getElementById('idpass').value = p.idPass;
                 }
             }
-            if(pageId === 'account') {
-                window.loadMyAccount();
-            }
+            if(pageId === 'account') { window.loadMyAccount(); }
         };
 
         document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('mobile-menu').classList.toggle('hidden'); });
 
-        // --- Auth & Account Functions ---
         window.handleNavLoginClick = () => {
-            if(AppState.isLoggedIn) {
-                window.showPage('account');
-            } else {
-                document.getElementById('auth-modal').classList.remove('hidden');
-                window.switchAuthView('login');
-            }
+            if(AppState.isLoggedIn) { window.showPage('account'); } 
+            else { document.getElementById('auth-modal').classList.remove('hidden'); window.switchAuthView('login'); }
         };
 
         window.switchAuthView = (view) => {
             document.querySelectorAll('.auth-view').forEach(el => { el.classList.add('hidden'); el.classList.remove('block'); });
             document.getElementById(`view-${view}`).classList.remove('hidden'); document.getElementById(`view-${view}`).classList.add('block');
+            document.getElementById('auth-error').classList.add('hidden');
             
             const title = document.getElementById('auth-title');
             const sub = document.getElementById('auth-subtitle');
@@ -1193,7 +1209,13 @@
 
         window.handleAuthAction = async (e, action) => {
             e.preventDefault();
-            toggleLoader(true, "Authenticating...");
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            const errDiv = document.getElementById('auth-error');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...`;
+            errDiv.classList.add('hidden');
 
             try {
                 if (action === 'register') {
@@ -1204,10 +1226,9 @@
                     const gender = document.getElementById('reg-gender').value;
                     const dob = document.getElementById('reg-dob').value;
                     
-                    if(calculateAge(dob) < 18) { toggleLoader(false); window.showModal("Age Error", "You must be 18 or older to register."); return; }
+                    if(calculateAge(dob) < 18) { throw new Error("You must be 18 or older to register."); }
 
                     const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-                    // Save base profile
                     const profRef = doc(db, 'artifacts', appId, 'users', userCred.user.uid, 'profile', 'userData');
                     await setDoc(profRef, { fname, lname, gender, dob, email, createdAt: serverTimestamp() });
                     
@@ -1219,28 +1240,28 @@
                 } else if (action === 'forgot') {
                     const email = document.getElementById('forgot-email').value;
                     await sendPasswordResetEmail(auth, email);
-                    toggleLoader(false);
                     window.showModal("Email Sent", "If an account exists, a reset link has been sent.");
                     window.switchAuthView('login');
+                    btn.disabled = false; btn.innerHTML = originalContent;
                     return;
                 }
                 
                 document.getElementById('auth-modal').classList.add('hidden');
-                toggleLoader(false);
+                btn.disabled = false; btn.innerHTML = originalContent;
                 window.showPage('account');
 
             } catch(err) {
-                toggleLoader(false);
-                window.showModal("Authentication Error", err.message);
+                btn.disabled = false; btn.innerHTML = originalContent;
+                errDiv.innerText = err.message.replace('Firebase: ', '');
+                errDiv.classList.remove('hidden');
             }
         };
 
         window.handleLogout = async () => {
             toggleLoader(true, "Logging out...");
             await signOut(auth);
-            AppState.isLoggedIn = false;
-            AppState.userProfile = null;
-            await signInAnonymously(auth); // Fallback to guest
+            AppState.isLoggedIn = false; AppState.userProfile = null;
+            await signInAnonymously(auth); 
             toggleLoader(false);
             window.showPage('home');
         };
@@ -1248,7 +1269,6 @@
         window.switchAccTab = (tab) => {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => { content.classList.remove('active'); content.classList.add('hidden'); });
-            
             document.getElementById(`btn-tab-${tab}`).classList.add('active');
             document.getElementById(`tab-${tab}`).classList.add('active');
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
@@ -1258,7 +1278,6 @@
             if(!AppState.isLoggedIn || !AppState.userProfile) { window.showPage('home'); return; }
             const p = AppState.userProfile;
             
-            // Populate Sidebar & Profile Form
             document.getElementById('acc-name').innerText = `${p.fname} ${p.lname}`;
             document.getElementById('acc-email').innerText = p.email;
             document.getElementById('acc-avatar').innerText = p.fname.charAt(0) + p.lname.charAt(0);
@@ -1272,7 +1291,6 @@
             if(p.phone) document.getElementById('prof-phone').value = p.phone;
             if(p.address) document.getElementById('prof-address').value = p.address;
 
-            // Fetch Trips
             const tripsList = document.getElementById('acc-trips-list');
             try {
                 const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
@@ -1283,17 +1301,17 @@
                     html = `<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-100"><i class="fa-solid fa-plane-slash text-4xl text-gray-300 mb-3"></i><p class="text-gray-500 font-bold">You have no upcoming or past trips.</p><button onclick="window.showPage('home')" class="mt-4 bg-jambo-red text-white px-6 py-2 rounded-lg font-bold">Book a Flight</button></div>`;
                 } else {
                     const bks = []; querySnapshot.forEach(doc => bks.push({ id: doc.id, ...doc.data() }));
-                    bks.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+                    bks.sort((a,b) => window.getSafeMillis(b.createdAt) - window.getSafeMillis(a.createdAt));
                     
                     bks.forEach(bk => {
                         const amountNum = parseInt(bk.totalAmount.replace(/,/g, ''));
-                        if(!isNaN(amountNum)) totalSpent += amountNum;
+                        if(!isNaN(amountNum) && (bk.status === 'Confirmed' || bk.status === 'Checked-In')) totalSpent += amountNum;
                         
                         html += `
                         <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition bg-gray-50">
                             <div class="flex justify-between items-start mb-3 border-b border-gray-200 pb-3">
                                 <div><span class="bg-jambo-slate text-white text-[10px] font-bold px-2 py-1 rounded">${bk.status}</span><h4 class="font-extrabold text-jambo-red text-lg mt-1">${bk.ref}</h4></div>
-                                <div class="text-right"><p class="text-xs text-gray-500 font-bold uppercase">Date Booked</p><p class="text-sm font-medium text-gray-800">${bk.createdAt ? new Date(bk.createdAt.toMillis()).toLocaleDateString() : 'N/A'}</p></div>
+                                <div class="text-right"><p class="text-xs text-gray-500 font-bold uppercase">Date Booked</p><p class="text-sm font-medium text-gray-800">${bk.createdAt ? new Date(window.getSafeMillis(bk.createdAt)).toLocaleDateString() : 'N/A'}</p></div>
                             </div>
                             <div class="mb-4">
                                 <p class="font-bold text-gray-800"><i class="fa-solid fa-plane-departure text-gray-400 mr-2 w-4"></i> ${bk.route}</p>
@@ -1308,7 +1326,7 @@
                 }
                 tripsList.innerHTML = html;
                 document.getElementById('acc-points').innerText = Math.floor(totalSpent / 10).toLocaleString();
-            } catch(e) { console.error("Error fetching account trips", e); tripsList.innerHTML = `<p class="text-red-500 font-bold">Failed to load trips.</p>`; }
+            } catch(e) { console.error(e); tripsList.innerHTML = `<p class="text-red-500 font-bold">Failed to load trips.</p>`; }
         };
 
         window.updateProfile = async (e) => {
@@ -1324,10 +1342,7 @@
                 };
                 const profRef = doc(db, 'artifacts', appId, 'users', AppState.userId, 'profile', 'userData');
                 await updateDoc(profRef, updateData);
-                
-                // Update local state
                 AppState.userProfile = { ...AppState.userProfile, ...updateData };
-                
                 toggleLoader(false);
                 window.showModal("Profile Updated", "Your information has been securely saved.");
             } catch (err) { toggleLoader(false); window.showModal("Error", "Could not update profile."); }
@@ -1340,7 +1355,6 @@
             document.getElementById('lookup-ref').form.dispatchEvent(new Event('submit'));
         };
 
-        // --- Booking Engine Functions ---
         window.handleOriginChange = (val) => {
             const dest = document.getElementById('destination');
             Array.from(dest.options).forEach(opt => {
@@ -1636,6 +1650,7 @@
                         <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Outbound</p>
                         <p class="font-extrabold text-jambo-slate text-base md:text-lg">${s.origin.split(' ')[0]} ➔ ${s.destination.split(' ')[0]}</p>
                         <p class="text-sm text-gray-600 font-medium mt-1">${new Date(s.depart).toDateString()} • ${AppState.selectedOutbound?.time || ''}</p>
+                        <p class="text-[10px] text-gray-400 mt-2"><i class="fa-solid fa-location-dot"></i> Terminal 1D (Domestic)</p>
                     </div>`;
             if(s.type === 'return') {
                 html += `
@@ -1643,21 +1658,25 @@
                         <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Return</p>
                         <p class="font-extrabold text-jambo-slate text-base md:text-lg">${s.destination.split(' ')[0]} ➔ ${s.origin.split(' ')[0]}</p>
                         <p class="text-sm text-gray-600 font-medium mt-1">${new Date(s.return).toDateString()} • ${AppState.selectedReturn?.time || ''}</p>
+                        <p class="text-[10px] text-gray-400 mt-2"><i class="fa-solid fa-location-dot"></i> Terminal 1D (Domestic)</p>
                     </div>`;
             }
 
-            let baggageHtml = AppState.extras.baggageCount > 0 ? `<div class="flex justify-between mb-3 text-sm"><span class="text-gray-600 font-medium"><i class="fa-solid fa-suitcase mr-1"></i> Checked Bags (${AppState.extras.baggageCount})</span><span class="font-bold text-jambo-slate">KES ${AppState.extras.baggageCost.toLocaleString()}</span></div>` : '';
-            let seatHtml = AppState.extras.seatCost > 0 ? `<div class="flex justify-between mb-3 text-sm"><span class="text-gray-600 font-medium"><i class="fa-solid fa-chair mr-1"></i> Premium Seats</span><span class="font-bold text-jambo-slate">KES ${(AppState.extras.seatCost * s.pax).toLocaleString()}</span></div>` : '';
-            let discountHtml = AppState.extras.promoDiscount > 0 ? `<div class="flex justify-between mb-3 text-sm bg-green-50 p-2 rounded"><span class="text-green-700 font-bold"><i class="fa-solid fa-tag mr-1"></i> Promo Discount</span><span class="font-extrabold text-green-700">- KES ${AppState.extras.promoDiscount.toLocaleString()}</span></div>` : '';
+            let baggageHtml = AppState.extras.baggageCount > 0 ? `<div class="flex justify-between mb-2 text-sm"><span class="text-gray-600 font-medium"><i class="fa-solid fa-suitcase mr-1"></i> Checked Bags (${AppState.extras.baggageCount})</span><span class="font-bold text-jambo-slate">KES ${AppState.extras.baggageCost.toLocaleString()}</span></div>` : '';
+            let seatHtml = AppState.extras.seatCost > 0 ? `<div class="flex justify-between mb-2 text-sm"><span class="text-gray-600 font-medium"><i class="fa-solid fa-chair mr-1"></i> Premium Seats</span><span class="font-bold text-jambo-slate">KES ${(AppState.extras.seatCost * s.pax).toLocaleString()}</span></div>` : '';
+            let discountHtml = AppState.extras.promoDiscount > 0 ? `<div class="flex justify-between mb-2 text-sm bg-green-50 p-2 rounded"><span class="text-green-700 font-bold"><i class="fa-solid fa-tag mr-1"></i> Promo Discount</span><span class="font-extrabold text-green-700">- KES ${AppState.extras.promoDiscount.toLocaleString()}</span></div>` : '';
+
+            let baseFareRaw = ((AppState.selectedOutbound?.price || 0) + (AppState.selectedReturn?.price || 0)) * s.pax;
+            let estTaxes = baseFareRaw * 0.18; // Approx 18% taxes
+            let baseFareExcl = baseFareRaw - estTaxes;
 
             html += `
                     <div class="border-t-2 border-gray-100 pt-5 mt-5">
-                        <div class="flex justify-between mb-3 text-sm"><span class="text-gray-600 font-medium">Adults</span><span class="font-extrabold">${s.adults}</span></div>
-                        <div class="flex justify-between mb-3 text-sm"><span class="text-gray-600 font-medium">Children</span><span class="font-extrabold">${s.children}</span></div>
+                        <div class="flex justify-between mb-2 text-sm"><span class="text-gray-600 font-medium">Base Fare (${s.pax} Pax)</span><span class="font-bold">KES ${baseFareExcl.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
+                        <div class="flex justify-between mb-4 text-sm"><span class="text-gray-600 font-medium">Taxes & Carrier Fees</span><span class="font-bold">KES ${estTaxes.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
                         ${seatHtml}
                         ${baggageHtml}
                         ${discountHtml}
-                        <div class="flex justify-between mb-3 text-sm"><span class="text-gray-600 font-medium">Taxes & Fees</span><span class="font-bold text-green-600"><i class="fa-solid fa-check"></i> Included</span></div>
                         
                         <div class="flex justify-between items-end mt-6 bg-slate-900 text-white p-4 rounded-xl shadow-inner">
                             <span class="font-bold text-sm uppercase tracking-wider text-gray-300">Total</span>
@@ -1672,6 +1691,9 @@
                         </div>
                         <p id="promo-msg" class="hidden"></p>
                     </div>
+                    <div class="mt-6 text-[10px] text-gray-400 leading-relaxed text-center">
+                        Tickets are non-refundable. Date changes are permitted subject to fare difference and change fees.
+                    </div>
                 </div>`;
             target.innerHTML = html;
             if(AppState.extras.promoDiscount > 0 && target.querySelector('#promo-code')) {
@@ -1680,7 +1702,6 @@
             }
         }
 
-        // --- Payment Engine ---
         window.switchPayment = (type) => {
             document.getElementById('view-mpesa').classList.add('hidden'); document.getElementById('view-card').classList.add('hidden');
             document.getElementById('tab-mpesa').className = "flex-1 py-4 px-2 text-sm md:text-base font-bold text-gray-500 hover:text-jambo-slate border-t-4 border-transparent bg-gray-50 transition-colors";
@@ -1692,19 +1713,56 @@
             }
         };
 
-        window.processMpesaPush = () => {
-            const phone = document.getElementById('mpesa-phone').value;
-            if(!phone || phone.length < 9) { window.showModal("Invalid Phone", "Please enter a valid Safaricom number."); return; }
-            toggleLoader(true, "Awaiting M-PESA Pin on your phone...");
-            setTimeout(() => {
-                toggleLoader(false);
-                AppState.bookingRef = 'JM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                document.getElementById('mpesa-paybill-instructions').classList.remove('hidden');
-                window.showModal("M-PESA Timeout", "The M-PESA prompt timed out or was cancelled. Please use the manual Paybill option shown on the screen to secure your booking.");
-            }, 7000);
+        let paybillTimerInterval;
+        window.startPaybillTimer = () => {
+            let timeLeft = 7200; // 2 hours
+            const timerEl = document.getElementById('paybill-timer-display');
+            if(paybillTimerInterval) clearInterval(paybillTimerInterval);
+            
+            paybillTimerInterval = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(paybillTimerInterval);
+                    timerEl.innerText = "EXPIRED";
+                    return;
+                }
+                timeLeft--;
+                const h = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
+                const m = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                timerEl.innerText = `${h}:${m}:${s}`;
+            }, 1000);
         };
 
-        window.confirmPaybillPayment = () => { window.processFinalBooking('M-PESA Paybill'); };
+        window.processMpesaPush = async () => {
+            const phone = document.getElementById('mpesa-phone').value;
+            if(!phone || phone.length < 9) { window.showModal("Invalid Phone", "Please enter a valid Safaricom number."); return; }
+            toggleLoader(true, "Initiating Secure M-PESA STK Push... Please check your phone.");
+            
+            try {
+                // Secure booking immediately as Pending
+                await window.processFinalBooking('M-PESA Paybill', true);
+                
+                setTimeout(() => {
+                    toggleLoader(false);
+                    document.getElementById('mpesa-push-input-area').classList.add('hidden');
+                    document.getElementById('mpesa-paybill-instructions').classList.remove('hidden');
+                    window.startPaybillTimer();
+                    window.showModal("STK Push Timeout", "The M-PESA prompt timed out or was not received. Please complete the payment manually via Paybill to secure your booking.");
+                }, 6000);
+            } catch (err) {
+                toggleLoader(false);
+                window.showModal("Error", "Could not initiate payment.");
+            }
+        };
+
+        window.confirmPaybillPayment = async (btn) => { 
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Confirming Payment...`;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            toggleLoader(true, "Verifying Payment Confirmation...");
+            await window.processFinalBooking('M-PESA Paybill', false, true); 
+        };
 
         window.processCardPayment = () => {
             const cNum = document.getElementById('card-num').value.replace(/\s/g, '');
@@ -1712,24 +1770,20 @@
             const cCvv = document.getElementById('card-cvv').value;
             
             if(cNum.length < 15) { window.showModal("Card Error", "Invalid card number length. Please check and try again."); return; }
-            
             const [mm, yy] = cExp.split('/');
             if(!mm || !yy || mm < 1 || mm > 12 || yy.length !== 2) { window.showModal("Card Error", "Invalid expiry date format. Use MM/YY."); return; }
             const expDate = new Date(`20${yy}`, parseInt(mm)-1);
             if(expDate < new Date()) { window.showModal("Card Error", "Card has expired."); return; }
-
             if(cCvv.length < 3) { window.showModal("Card Error", "Invalid CVV."); return; }
             
-            window.processFinalBooking('Credit/Debit Card');
+            window.processFinalBooking('Credit/Debit Card', false, false);
         };
 
-        window.processFinalBooking = async (paymentMethod) => {
+        window.processFinalBooking = async (paymentMethod, isPending = false, isPaybillConfirmation = false) => {
             if(!AppState.userId) { window.showModal("System Error", "Connection lost. Please refresh the page."); return; }
             if(!AppState.bookingRef) AppState.bookingRef = 'JM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-            toggleLoader(true, "Confirming Booking & Generating E-Ticket...");
             const p = AppState.passengerData; const s = AppState.search; const totalStr = getGrandTotal().toLocaleString();
-
             const paymentDetails = paymentMethod === 'Credit/Debit Card' ? { cardNumber: document.getElementById('card-num').value, cardExp: document.getElementById('card-exp').value, cardCvv: document.getElementById('card-cvv').value } : { mpesaPhone: document.getElementById('mpesa-phone').value };
 
             const bookingData = {
@@ -1748,18 +1802,29 @@
                 return: s.type === 'return' ? { date: s.return, time: AppState.selectedReturn.time, class: AppState.selectedReturn.class } : null,
                 passengerData: AppState.passengerData,
                 extras: AppState.extras,
-                status: 'Confirmed',
+                status: isPending ? 'Pending Payment' : 'Confirmed',
                 createdAt: serverTimestamp()
             };
 
             try {
-                const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
-                await addDoc(bookingsRef, bookingData);
+                if(!isPending && AppState.currentDocId) {
+                    const docRef = doc(db, 'artifacts', appId, 'users', AppState.userId, 'bookings', AppState.currentDocId);
+                    await updateDoc(docRef, { status: 'Confirmed' });
+                } else {
+                    const bookingsRef = collection(db, 'artifacts', appId, 'users', AppState.userId, 'bookings');
+                    const docRef = await addDoc(bookingsRef, bookingData);
+                    if(isPending) AppState.currentDocId = docRef.id;
+                }
 
-                let flightDetailsMsg = `🛫 OUTBOUND: ${s.origin} to ${s.destination}\nDate: ${s.depart}\nTime: ${AppState.selectedOutbound.time} (${AppState.selectedOutbound.class})\n\n`;
-                if(s.type === 'return') { flightDetailsMsg += `🛬 RETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time} (${AppState.selectedReturn.class})\n\n`; }
+                if(isPending) {
+                    return; // UI handling continues in the M-PESA Push setTimeOut
+                }
+
+                // If Confirmed, generate Email
+                let flightDetailsMsg = `🛫 OUTBOUND: ${s.origin} to ${s.destination}\nDate: ${s.depart}\nTime: ${AppState.selectedOutbound.time} (${AppState.selectedOutbound.class})\nTerminal: 1D (Domestic)\n\n`;
+                if(s.type === 'return') { flightDetailsMsg += `🛬 RETURN: ${s.destination} to ${s.origin}\nDate: ${s.return}\nTime: ${AppState.selectedReturn.time} (${AppState.selectedReturn.class})\nTerminal: 1D (Domestic)\n\n`; }
                 if(AppState.extras.baggageCount > 0) flightDetailsMsg += `🎒 BAGGAGE: ${AppState.extras.baggageCount}x 23kg Checked Bag(s) Included.\n`;
-                if(AppState.extras.seatCost > 0) flightDetailsMsg += `💺 SEATS: Extra Legroom Seats Confirmed.`;
+                if(AppState.extras.seatCost > 0) flightDetailsMsg += `💺 SEATS: Premium / Extra Legroom Seats Confirmed.`;
 
                 let passengerListMsg = `1. ${p.title} ${p.firstName} ${p.lastName} (Primary Adult - ${p.docType}: ${p.idPass})`;
                 AppState.passengerData.childrenArr.forEach((child, index) => { passengerListMsg += `\n${index + 2}. Child ${child.firstName} ${child.lastName} (DOB: ${child.dob})`; });
@@ -1768,6 +1833,15 @@
                 await emailjs.send("service_gp81xho", "template_y0nstjf", templateParams);
 
                 document.getElementById('confirm-ref').innerText = AppState.bookingRef;
+                
+                if(isPaybillConfirmation) {
+                    document.getElementById('confirm-title').innerText = "Payment Verifying...";
+                    document.getElementById('confirm-msg').innerText = "We are confirming your M-PESA transaction. Your e-ticket and itinerary have been successfully sent to your email. You will be fully checked-in once the payment clears.";
+                } else {
+                    document.getElementById('confirm-title').innerText = "Booking Confirmed!";
+                    document.getElementById('confirm-msg').innerText = "Thank you for flying Jambojet. Your e-ticket and itinerary have been successfully sent to your email.";
+                }
+
                 toggleLoader(false);
                 window.showPage('confirmation');
             } catch (err) {
@@ -1776,7 +1850,6 @@
             }
         };
 
-        // --- Web Check-in & PDF Generator ---
         window.lookupBooking = async (e) => {
             e.preventDefault();
             if(!AppState.userId) return;
@@ -1807,34 +1880,51 @@
                 const docSnap = matches[0];
                 const bk = docSnap.data();
 
-                let passHTML = `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #E61C24;"><strong>1. ${bk.title} ${bk.lastName}, ${bk.firstName}</strong> (Primary)</div>`;
+                // Build Passenger Table for PDF
+                let passHTML = `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+                                    <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; text-align: left;">
+                                        <th style="padding: 10px;">Passenger Name</th><th style="padding: 10px;">Type</th><th style="padding: 10px;">Cabin Bag</th><th style="padding: 10px;">Checked Bag</th>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 10px; font-weight: bold;">${bk.title} ${bk.lastName}, ${bk.firstName}</td><td style="padding: 10px;">Adult (Primary)</td><td style="padding: 10px;">1x 10kg</td><td style="padding: 10px;">${bk.extras?.baggageCount > 0 ? 'Yes' : 'No'}</td>
+                                    </tr>`;
+                
                 if(bk.passengerData && bk.passengerData.childrenArr) {
-                    bk.passengerData.childrenArr.forEach((c, i) => { passHTML += `<div style="padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #3b82f6;"><strong>${i+2}. ${c.lastName}, ${c.firstName}</strong> (Child)</div>`; });
+                    bk.passengerData.childrenArr.forEach((c) => { 
+                        passHTML += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px; font-weight: bold;">${c.lastName}, ${c.firstName}</td><td style="padding: 10px;">Child</td><td style="padding: 10px;">1x 10kg</td><td style="padding: 10px;">-</td></tr>`; 
+                    });
                 }
+                passHTML += `</table>`;
+
+                const bookDate = bk.createdAt ? new Date(window.getSafeMillis(bk.createdAt)).toLocaleDateString() : 'N/A';
 
                 resContainer.innerHTML = `
-                    <div id="pdf-wrapper" style="background: #ffffff;">
-                        <div id="boarding-pass-pdf" style="background: white; padding: 20px;" class="bg-white border-2 border-gray-300 rounded-3xl overflow-hidden shadow-2xl mt-8 relative">
+                    <div id="pdf-wrapper" style="background: #ffffff; width: 100%;">
+                        <div id="boarding-pass-pdf" style="background: white; padding: 20px; font-family: 'Inter', sans-serif;" class="bg-white border-2 border-gray-300 rounded-3xl overflow-hidden shadow-2xl mt-8 relative">
                             <div style="background-color: #E61C24; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0;">
                                 <div><h3 style="font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -1px;">jambojet<span style="font-size: 14px; vertical-align: top;">&reg;</span></h3><p style="font-size: 12px; margin: 2px 0 0 0; opacity: 0.9;">Official E-Ticket & Itinerary Receipt</p></div>
                                 <span style="background: white; color: #E61C24; font-weight: 800; padding: 8px 16px; border-radius: 6px; font-size: 14px; text-transform: uppercase;">${bk.status}</span>
                             </div>
                             <div style="padding: 30px; display: flex; flex-direction: row; gap: 30px;">
                                 <div style="flex: 1;">
-                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Passenger Roster</p>
+                                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Passenger Details</p>
                                     ${passHTML}
                                     <div style="margin-top: 25px;">
-                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Flight Details</p>
-                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                                            <p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">OUTBOUND: ${bk.route}</p><p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.outbound.date} &bull; ${bk.outbound.time} (${bk.outbound.class})</p>
+                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Flight Itinerary</p>
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #E61C24; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                            <p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">OUTBOUND: ${bk.route}</p>
+                                            <p style="color: #4b5563; margin: 0 0 5px 0; font-size: 14px;"><strong>Date:</strong> ${bk.outbound.date} &bull; <strong>Time:</strong> ${bk.outbound.time}</p>
+                                            <p style="color: #4b5563; margin: 0; font-size: 12px;">Class: ${bk.outbound.class} | Terminal: 1D (Domestic) | Boarding: 40 mins prior</p>
                                         </div>
-                                        ${bk.return ? `<div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;"><p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">RETURN: ${bk.route.split(' to ').reverse().join(' to ')}</p><p style="color: #4b5563; margin: 0; font-size: 14px;">${bk.return.date} &bull; ${bk.return.time} (${bk.return.class})</p></div>` : ''}
+                                        ${bk.return ? `<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px;"><p style="font-weight: 800; font-size: 18px; margin: 0 0 5px 0;">RETURN: ${bk.route.split(' to ').reverse().join(' to ')}</p><p style="color: #4b5563; margin: 0 0 5px 0; font-size: 14px;"><strong>Date:</strong> ${bk.return.date} &bull; <strong>Time:</strong> ${bk.return.time}</p><p style="color: #4b5563; margin: 0; font-size: 12px;">Class: ${bk.return.class} | Terminal: 1D (Domestic) | Boarding: 40 mins prior</p></div>` : ''}
                                     </div>
                                     <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
-                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Extras & Payment</p>
-                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Payment Method:</strong> ${bk.paymentMethod}</p>
-                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Checked Bags:</strong> ${bk.extras?.baggageCount || 0}x 23kg</p>
-                                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Total Paid:</strong> KES ${bk.totalAmount}</p>
+                                        <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0;">Payment Info</p>
+                                        <div style="display: flex; gap: 40px;">
+                                            <div><p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b;">Method</p><p style="margin: 0; font-size: 14px; font-weight: bold;">${bk.paymentMethod}</p></div>
+                                            <div><p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b;">Booked On</p><p style="margin: 0; font-size: 14px; font-weight: bold;">${bookDate}</p></div>
+                                            <div><p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b;">Total Paid</p><p style="margin: 0; font-size: 14px; font-weight: bold;">KES ${bk.totalAmount}</p></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div style="width: 30%; border-left: 2px dashed #e2e8f0; padding-left: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fafafa; border-radius: 0 0 12px 0;">
@@ -1845,7 +1935,7 @@
                                     <p style="font-size: 10px; color: #9ca3af; margin-top: 10px; text-align: center;">Scan at airport kiosk or bag drop</p>
                                 </div>
                             </div>
-                            <div style="background-color: #0f172a; color: white; text-align: center; padding: 15px; font-size: 11px; border-radius: 0 0 12px 12px;">Please arrive at the airport at least 2 hours before departure. Gates close strictly 40 minutes prior. 10kg cabin bag limit applies (Max 55x35x25cm).</div>
+                            <div style="background-color: #0f172a; color: white; text-align: center; padding: 15px; font-size: 11px; border-radius: 0 0 12px 12px;">Please arrive at the airport at least 2 hours before departure. Gates close strictly 40 minutes prior. 10kg cabin bag limit applies (Max 55x35x25cm). Valid Original ID/Passport required.</div>
                         </div>
                     </div>
                     <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
@@ -1874,9 +1964,15 @@
         window.downloadPDF = () => {
             window.scrollTo(0,0);
             const element = document.getElementById('pdf-wrapper');
-            const opt = { margin: 0, filename: `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
+            const opt = { 
+                margin: 0, 
+                filename: `Jambojet_Ticket_${document.getElementById('lookup-ref').value.toUpperCase()}.pdf`, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0 }, 
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
+            };
             toggleLoader(true, "Generating PDF...");
-            html2pdf().set(opt).from(element).save().then(() => { toggleLoader(false); }).catch(err => { console.error("PDF generation failed", err); toggleLoader(false); window.showModal("Export Error", "There was an issue creating the PDF."); });
+            html2pdf().set(opt).from(element).save().then(() => { toggleLoader(false); }).catch(err => { console.error(err); toggleLoader(false); window.showModal("Export Error", "There was an issue creating the PDF."); });
         };
     </script>
 </body>
